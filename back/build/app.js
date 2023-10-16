@@ -32,7 +32,6 @@ app.use((0, cors_1.default)());
 oracledb_1.default.outFormat = oracledb_1.default.OUT_FORMAT_OBJECT;
 // servicos de backend
 app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("aaaa");
     let cr = { status: "ERROR", message: "", payload: undefined, };
     let connection;
     try {

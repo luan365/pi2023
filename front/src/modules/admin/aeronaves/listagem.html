@@ -1,37 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/listagem.css">
     <title>Aeronaves</title>
-    <style>
-      body {
-        font-family: Arial, Helvetica, sans-serif;
-      }
-      thead th {
-        border-bottom: 3px solid #3c3c3c;
-      }
-      tbody tr:hover {
-        background-color: #cce3fd;
-      }
-      .oddRow {
-        background-color: #f3f3f3;
-      }
-      .evenRow {
-        background-color: #fafafa;
-      }
-      #tblAeronaves {
-        padding: 0;
-        width: 80%;
-      }
-      .leftText {
-        text-align: left;
-      }
-      .centerText {
-        text-align: center;
-      }
-      .rightText {
-        text-align: right;
-      }
-    </style>
     <script lang="javascript">
 
             /***
@@ -160,6 +131,22 @@
       </thead>
       <tbody id="dados-aeronave"></tbody>
     </table>
+    <div>
+      <p>
+        <button 
+          type="button"
+          class="button"
+          onclick="excluirAeronaveSelecionada();"
+          id="btnCadastrar"
+          name="btnCadastrar">Excluir</button>
+        <button 
+          type="button"
+          class="button"
+          onclick="window.history.back();"
+          id="btnSair"
+          name="btnSair">Sair</button>
+      </p>
+    </div>
     <script>
       // vamos chamar a função aqui no final para carregar as aeronaves depois
       // que renderizar toda a página HTML.

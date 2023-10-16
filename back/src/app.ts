@@ -28,7 +28,6 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
 // servicos de backend
 app.get("/listarAeronaves", async(req,res)=>{
-  console.log("aaaa");
 
   let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};
   let connection;

@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Aeronaves - Cadastrar</title>
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/cadastrar.css">
     <script>
       // verifica se o ano é valido
       function anoValido(){
@@ -185,13 +186,19 @@
       </p>
       <p>
         <button 
-          type="button" 
+          type="button"
+          class="button" 
           onclick="inserirAeronave();"
           id="btnCadastrar"
           name="btnCadastrar">Cadastrar</button>
-        <button type="reset">Limpar</button>
+          
+        <button type="reset"
+        class="button">Limpar</button>
+
         <button 
           type="button"
+          class="button"
+          onclick="window.history.back();"
           id="btnSair"
           name="btnSair">Sair</button>
       </p>

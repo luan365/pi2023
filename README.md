@@ -1,4 +1,8 @@
 # pi2023
+
+Caso as bibliotecas express || oracledb || cors não for encontradas, executar o código:
+npm i typescript @types/node @types/express @types/oracledb @types/dotenv --save-dev
+
 Executar o código no terminal "npm start" dentro do diretorio "/back"
 Abrir o index.html usando a extensão "liveServer"
 

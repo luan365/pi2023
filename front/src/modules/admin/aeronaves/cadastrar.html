@@ -136,7 +136,7 @@
               }
             })
             .catch((e)=>{
-              showStatusMessage("Erro técnico ao cadastrar... Contate o suporte.", true);
+              showStatusMessage("Erro técnico ao cadastrar... Contate o suporte.\n" + e, true);
               console.log("Falha grave ao cadastrar." + e)
             });        
       }

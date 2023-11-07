@@ -36,7 +36,7 @@
     function preencherTabela(trechos) {
 
       // acessando a referencia pelo id do tbody
-      const tblBody = document.getElementById("dados-trechos");
+      const tblBody = document.getElementById("dados-trecho");
 
       let trecho = "";
       // creating all cells
@@ -53,6 +53,19 @@
       <td class="leftText">${trecho.origem}</td>
       <td class="leftText">${trecho.destino}</td>
       <td class="centerText">${trecho.aeronave}</td>
+      <td class="centerText">
+        <img
+          src="/front/src/assets/images/delete_icon.png"
+          width="45"
+          onclick="excluirAeronave(${trecho.codigo});"
+          style="margin-right: 25px;"
+        />
+        <img
+          src="/front/src/assets/images/edit_icon.png"
+          width="40"
+          onclick="alterarAeronave(${trecho.codigo});"
+        />
+      </td>
       `
 
         // adicionando a linha que representa a trecho. 
@@ -67,7 +80,7 @@
   <body data-bs-theme="dark">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
+        <a class="navbar-brand" href="./Index.html"> AirPuc </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -75,7 +88,8 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
                 Menu
               </a>
               <ul class="dropdown-menu">
@@ -85,7 +99,7 @@
             </li>
           </ul>
 
-          <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
+          <a type="button" class="btn" href="./login.html" role="button">Conectar</a>
           <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
 
         </div>
@@ -125,35 +139,26 @@
             </div>
           </div>
           <div class="col-12">
-            <button 
-              type="submit" 
-              class="btn btn-primary" 
-              onclick="listarVoos()"
-              >
-              Buscar
-          </button>
+            <button type="submit" class="btn btn-primary" onclick="listarVoos()">Buscar</button>
           </div>
       </div>
       </form>
     </div>
-    <br><br>
-    <div >
       <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped" style="margin-top: 60px;">
         <thead>
           <tr>
-            <th width="15%" class="leftText">Nome</th>
-            <th width="30%" class="leftText">Origem</th>
-            <th width="30%" class="leftText">Destino</th>
-            <th width="25%" class="centerText">Aeronave</th>  
+            <th width="5%" class="leftText">Nome</th>
+            <th width="10%" class="leftText">Origem</th>
+            <th width="20%" class="leftText">Destino</th>
+            <th width="10%" class="centerText">Aeronave</th>  
           </tr>
         </thead>
-        <tbody id="dados-trechos"></tbody>
+        <tbody id="dados-aeronave"></tbody>
       </table>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
-      listarVoos();
+
       </script>
   </body>
 

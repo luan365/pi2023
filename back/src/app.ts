@@ -12,6 +12,7 @@ import { oraConnAttribs } from "./OracleConnAtribs";
 
 // conversores para facilitar o trabalho de conversão dos resultados Oracle para vetores de tipos nossos.
 import { rowsToAeronaves } from "./Conversores";
+import { rowsToTrechos } from "./ConversorTrechos";
 
 // validadores para facilitar o trabalho de validação.
 import { aeronaveValida } from "./Validadores";
@@ -57,6 +58,105 @@ app.get("/listarAeronaves", async(req,res)=>{
     res.send(cr);  
   }
 });
+
+app.get("/listarTrechos", async(req,res)=>{
+
+  let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};
+  let connection;
+  try{
+    connection = await oracledb.getConnection(oraConnAttribs);
+
+    // atenção: mudamos a saída para que o oracle entregue um objeto puro em JS no rows.
+    // não mais um array dentro de array.
+    let resultadoConsulta = await connection.execute(`SELECT * FROM TRECHOS`); 
+  
+    cr.status = "SUCCESS"; 
+    cr.message = "Dados obtidos";
+    // agora sempre vamos converter as linhas do oracle em resultados do nosso TIPO.
+    cr.payload = (rowsToTrechos(resultadoConsulta.rows));
+
+  }catch(e){
+    if(e instanceof Error){
+      cr.message = e.message;
+      console.log(e.message);
+    }else{
+      cr.message = "Erro ao conectar ao oracle. Sem detalhes";
+    }
+  } finally {
+    if(connection !== undefined){
+      await connection.close();
+    }
+    res.send(cr);  
+  }
+});
+
+app.put("/alterarAeronave", async (req, res) => {
+  // Obtenha aeronave e código da requisição.
+  const aero: Aeronave = req.body as Aeronave;
+  const codigo = aero.codigo;
+
+  // Defina um objeto de resposta.
+  let cr: CustomResponse = {
+    status: "ERROR",
+    message: "",
+    payload: undefined,
+  };
+
+  // Valide a aeronave.
+  let [valida, mensagem] = aeronaveValida(aero);
+
+  if (!valida) {
+    // Se a aeronave não for válida, envie uma resposta de erro.
+    cr.message = mensagem;
+    res.send(cr);
+  } else {
+    // Continue o processo porque passou na validação.
+    let connection;
+    try {
+      const cmdUpdateAero = `UPDATE AERONAVES 
+                             SET FABRICANTE = :1, MODELO = :2, ANO_FABRICACAO = :3, TOTAL_ASSENTOS = :4, REFERENCIA = :5
+                             WHERE CODIGO = :6`;
+
+      const dados = [
+        aero.fabricante,
+        aero.modelo,
+        aero.anoFabricacao,
+        aero.totalAssentos,
+        aero.referencia,
+        codigo,
+      ];
+
+      connection = await oracledb.getConnection(oraConnAttribs);
+      let resUpdate = await connection.execute(cmdUpdateAero, dados);
+
+      // Importante: efetuar o commit para gravar no Oracle.
+      await connection.commit();
+
+      // Obter a informação de quantas linhas foram atualizadas.
+      const rowsUpdated = resUpdate.rowsAffected;
+
+      if (rowsUpdated !== undefined && rowsUpdated === 1) {
+        cr.status = "SUCCESS";
+        cr.message = "Aeronave atualizada.";
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        cr.message = e.message;
+        console.log(e.message);
+      } else {
+        cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
+      }
+    } finally {
+      // Fechar a conexão.
+      if (connection !== undefined) {
+        await connection.close();
+      }
+      // Enviar a resposta da requisição.
+      res.send(cr);
+    }
+  }
+});
+
 
 app.put("/inserirAeronave", async(req,res)=>{
   

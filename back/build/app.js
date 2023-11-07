@@ -20,6 +20,7 @@ const cors_1 = __importDefault(require("cors"));
 const OracleConnAtribs_1 = require("./OracleConnAtribs");
 // conversores para facilitar o trabalho de conversão dos resultados Oracle para vetores de tipos nossos.
 const Conversores_1 = require("./Conversores");
+const ConversorTrechos_1 = require("./ConversorTrechos");
 // validadores para facilitar o trabalho de validação.
 const Validadores_1 = require("./Validadores");
 // preparar o servidor web de backend na porta 3000
@@ -58,6 +59,97 @@ app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, func
             yield connection.close();
         }
         res.send(cr);
+    }
+}));
+app.get("/listarTrechos", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let cr = { status: "ERROR", message: "", payload: undefined, };
+    let connection;
+    try {
+        connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
+        // atenção: mudamos a saída para que o oracle entregue um objeto puro em JS no rows.
+        // não mais um array dentro de array.
+        let resultadoConsulta = yield connection.execute(`SELECT * FROM TRECHOS`);
+        cr.status = "SUCCESS";
+        cr.message = "Dados obtidos";
+        // agora sempre vamos converter as linhas do oracle em resultados do nosso TIPO.
+        cr.payload = ((0, ConversorTrechos_1.rowsToTrechos)(resultadoConsulta.rows));
+    }
+    catch (e) {
+        if (e instanceof Error) {
+            cr.message = e.message;
+            console.log(e.message);
+        }
+        else {
+            cr.message = "Erro ao conectar ao oracle. Sem detalhes";
+        }
+    }
+    finally {
+        if (connection !== undefined) {
+            yield connection.close();
+        }
+        res.send(cr);
+    }
+}));
+app.put("/alterarAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // Obtenha aeronave e código da requisição.
+    const aero = req.body;
+    const codigo = aero.codigo;
+    // Defina um objeto de resposta.
+    let cr = {
+        status: "ERROR",
+        message: "",
+        payload: undefined,
+    };
+    // Valide a aeronave.
+    let [valida, mensagem] = (0, Validadores_1.aeronaveValida)(aero);
+    if (!valida) {
+        // Se a aeronave não for válida, envie uma resposta de erro.
+        cr.message = mensagem;
+        res.send(cr);
+    }
+    else {
+        // Continue o processo porque passou na validação.
+        let connection;
+        try {
+            const cmdUpdateAero = `UPDATE AERONAVES 
+                             SET FABRICANTE = :1, MODELO = :2, ANO_FABRICACAO = :3, TOTAL_ASSENTOS = :4, REFERENCIA = :5
+                             WHERE CODIGO = :6`;
+            const dados = [
+                aero.fabricante,
+                aero.modelo,
+                aero.anoFabricacao,
+                aero.totalAssentos,
+                aero.referencia,
+                codigo,
+            ];
+            connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
+            let resUpdate = yield connection.execute(cmdUpdateAero, dados);
+            // Importante: efetuar o commit para gravar no Oracle.
+            yield connection.commit();
+            // Obter a informação de quantas linhas foram atualizadas.
+            const rowsUpdated = resUpdate.rowsAffected;
+            if (rowsUpdated !== undefined && rowsUpdated === 1) {
+                cr.status = "SUCCESS";
+                cr.message = "Aeronave atualizada.";
+            }
+        }
+        catch (e) {
+            if (e instanceof Error) {
+                cr.message = e.message;
+                console.log(e.message);
+            }
+            else {
+                cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
+            }
+        }
+        finally {
+            // Fechar a conexão.
+            if (connection !== undefined) {
+                yield connection.close();
+            }
+            // Enviar a resposta da requisição.
+            res.send(cr);
+        }
     }
 }));
 app.put("/inserirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

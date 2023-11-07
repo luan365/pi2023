@@ -1,150 +1,219 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <link rel="stylesheet" type="text/css" href="../../../assets/css/listagem.css">
-    <title>Aeronaves</title>
-    <script lang="javascript">
 
-            /***
-             * Função que busca as aeronaves chamando o serviço.
-             */
-            function requestListaDeAeronaves() {
-              const requestOptions = {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-              };
-              return fetch('http://localhost:3000/listarAeronaves', requestOptions)
-              .then(T => T.json())
-            }
+<head>
+  <link rel="stylesheet" type="text/css" href="../../../assets/css/listagem.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="icon" href="../../../assets/images/icone.png">
+  <title>Aeronaves</title>
+  <script lang="javascript">
 
-            /***
-             * Função que requisita a exclusão
-             */
-             function requestExcluirAeronave(body) {
-              const requestOptions = {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-              };
-              return fetch('http://localhost:3000/excluirAeronave', requestOptions)
-              .then(T => T.json())
-            }
+    function alterarAeronave(codigo) {
 
-            function preencherTabela(aeronaves) {
-              
-              // acessando a referencia pelo id do tbody
-              const tblBody = document.getElementById("dados-aeronave");
+      document.getElementById("edit-aeronave").style.display = "block";
+    const aeronave = obterAeronavePorCodigo(codigo);
+    if (aeronave) {
+      document.getElementById("codigoAeronave").value = codigo;
+      document.getElementById("editFabricante").value = aeronave.fabricante;
+      document.getElementById("editModelo").value = aeronave.modelo;
+      document.getElementById("editAnoFab").value = aeronave.anoFabricacao;
+      document.getElementById("editReferencia").value = aeronave.referencia;
+      document.getElementById("editTotalAssentos").value = aeronave.totalAssentos;
+    }
+  }
 
-              let aeronave = "";
-              // creating all cells
-              for (let i = 0; i < aeronaves.length; i++) {
+  function salvarAlteracao() {
+    // Obtenha os dados da aeronave editada
+    const codigo = document.getElementById("codigoAeronave").value;
+    const fabricante = document.getElementById("editFabricante").value;
+    const modelo = document.getElementById("editModelo").value;
+    const anoFab = document.getElementById("editAnoFab").value;
+    const referencia = document.getElementById("editReferencia").value;
+    const totalAssentos = document.getElementById("editTotalAssentos").value;
 
-                  aeronave = aeronaves[i];
-                  console.log("Dados da aeronave: " + aeronave);
-                  // row representa a linha da tabela (um novo tr)
-                  const row = document.createElement("tr");
+    // Valide os campos da aeronave se necessário
 
-                  // vamos atribuir um estilo.
-                  if (i % 2 === 0)
-                    row.className = "evenRow";
-                  else
-                    row.className = "oddRow";
+    // Construa um objeto com os dados da aeronave a ser atualizada
+    const aeronaveData = {
+      codigo: codigo,
+      fabricante: fabricante,
+      modelo: modelo,
+      anoFabricacao: anoFab,
+      referencia: referencia,
+      totalAssentos: totalAssentos,
+    };
 
-                  row.innerHTML = 
-                    `<td class="leftText">${aeronave.codigo}</td>
-                      <td class="leftText">${aeronave.fabricante}</td>
-                      <td class="leftText">${aeronave.modelo}</td>
-                      <td class="centerText">${aeronave.referencia}</td>
-                      <td class="rightText">${aeronave.anoFabricacao}</td>
-                      <td class="rightText">${aeronave.totalAssentos}</td>
-                      <td class="centerText">
-                        <img
-                            src="/front/src/assets/images/delete_icon.png"
-                            onclick="excluirAeronave(${aeronave.codigo});"
-                        />
-                      </td>`
-                
-                   // adicionando a linha que representa a aeronave. 
-                  tblBody.appendChild(row);
-                }
-            }
+    // Envie a solicitação de alteração para o servidor
+    fetchAlterarAeronave(aeronaveData)
+      .then((customResponse) => {
+        if (customResponse.status === "SUCCESS") {
+          showStatusMessage("Aeronave alterada com sucesso.", false);
+          document.getElementById("edit-aeronave").style.display = "none";
+          document.getElementById("dados-aeronave").style.display = "block";
+          // Atualize a tabela aqui com os novos valores, se necessário
+        } else {
+          showStatusMessage("Erro ao alterar aeronave: " + customResponse.message, true);
+          console.log(customResponse.message);
+        }
+      })
+      .catch((e) => {
+        showStatusMessage("Erro técnico ao alterar aeronave. Entre em contato com o suporte.", true);
+        console.log("Falha grave ao alterar aeronave: " + e);
+      });
+  }
 
-          
-            function excluirAeronave(c){
-              console.log('Clicou no excluir aeronave: ' + c);
-              // vamos fazer a exclusão
-              requestExcluirAeronave({codigo: c})
-              .then(customResponse => {
-                // obteve resposta na exclusão, chamamos novamente o carregar.
-                if(customResponse.status === "SUCCESS"){
-                  location.reload();
-                }else{
-                  // tratar corretamente o erro... (melhorar...)
-                  console.log(customResponse.message);
-                }
-              })
-              .catch((e) => {
-                console.log("Não foi possível excluir." + e);
-              });
-            }
+    /***
+     * Função que busca as aeronaves chamando o serviço.
+     */
+    function requestListaDeAeronaves() {
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      };
+      return fetch('http://localhost:3000/listarAeronaves', requestOptions)
+        .then(T => T.json())
+    }
 
-            function exibirAeronaves() {
-              console.log('Entrou no exibir...')
-              requestListaDeAeronaves()
-                .then(customResponse => {
-                    // obteve resposta, vamos simplesmente exibir como mensagem:
-                    if(customResponse.status === "SUCCESS"){
-                      // vamos obter o que está no payload e chamar a função .
-                      console.log("Deu certo a busca de aeronaves");
-                      // agora chamar a função de exibição dos dados em tabela... 
-                      // no payload voltou o Array com as aeronaves. 
-                      // DEVEMOS antes, conferir se o ARRAY não está vazio. Faça essa mudança.
-                      console.log('Payload:' + JSON.stringify(customResponse.payload));
-                      preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)))
-                    }else{
-                      // tratar corretamente o erro... (melhorar...)
-                      console.log(customResponse.message);
-                    }
-                  })
-                  .catch((e)=>{
-                    // FAZER O TRATAMENTO...
-                    console.log("Não foi possível exibir." + e);
-                  });
-            }
+    /***
+     * Função que requisita a exclusão
+     */
+    function requestExcluirAeronave(body) {
+      const requestOptions = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      };
+      return fetch('http://localhost:3000/excluirAeronave', requestOptions)
+        .then(T => T.json())
+    }
 
-    </script>
-  </head>
-  <body>
-    <h1>Aeronaves</h1>
-    <hr />
-    <table id="tblAeronaves" cellspacing="5" cellpadding="10">
-      <thead>
-        <tr>
-          <th width="5%" class="leftText">Código</th>
-          <th width="10%" class="leftText">Fabricante</th>
-          <th width="20%" class="leftText">Modelo</th>
-          <th width="10%" class="centerText">Referência</th>
-          <th width="10%" class="rightText">Ano Fab.</th>
-          <th width="10%" class="rightText">Qtde de Assentos</th>
-          <th width="10%" class="centerText">Opções</th>
-        </tr>
-      </thead>
-      <tbody id="dados-aeronave"></tbody>
-    </table>
-    <div>
-      <p>
-        <button 
-          type="button"
-          class="button"
-          onclick="window.history.back();"
-          id="btnSair"
-          name="btnSair">Sair</button>
-      </p>
-    </div>
-    <script>
-      // vamos chamar a função aqui no final para carregar as aeronaves depois
-      // que renderizar toda a página HTML.
-      exibirAeronaves();
-    </script>
-  </body>
+    function preencherTabela(aeronaves) {
+
+      // acessando a referencia pelo id do tbody
+      const tblBody = document.getElementById("dados-aeronave");
+
+      let aeronave = "";
+      // creating all cells
+      for (let i = 0; i < aeronaves.length; i++) {
+
+        aeronave = aeronaves[i];
+        console.log("Dados da aeronave: " + aeronave);
+        // row representa a linha da tabela (um novo tr)
+        const row = document.createElement("tr");
+
+        row.innerHTML =
+          `
+            <td class="leftText">${aeronave.codigo}</td>
+            <td class="leftText">${aeronave.fabricante}</td>
+            <td class="leftText">${aeronave.modelo}</td>
+            <td class="centerText">${aeronave.referencia}</td>
+            <td class="rightText">${aeronave.anoFabricacao}</td>
+            <td class="rightText">${aeronave.totalAssentos}</td>
+            <td class="centerText">
+              <img
+                src="/front/src/assets/images/delete_icon.png"
+                width="45"
+                onclick="excluirAeronave(${aeronave.codigo});"
+                style="margin-right: 25px;"
+              />
+              <img
+                src="/front/src/assets/images/edit_icon.png"
+                width="40"
+                onclick="alterarAeronave(${aeronave.codigo});"
+              />
+            </td>
+            `
+
+        // adicionando a linha que representa a aeronave. 
+        tblBody.appendChild(row);
+      }
+    }
+
+
+    function excluirAeronave(c) {
+      console.log('Clicou no excluir aeronave: ' + c);
+      // vamos fazer a exclusão
+      requestExcluirAeronave({ codigo: c })
+        .then(customResponse => {
+          // obteve resposta na exclusão, chamamos novamente o carregar.
+          if (customResponse.status === "SUCCESS") {
+            location.reload();
+          } else {
+            // tratar corretamente o erro... (melhorar...)
+            console.log(customResponse.message);
+          }
+        })
+        .catch((e) => {
+          console.log("Não foi possível excluir." + e);
+        });
+    }
+
+    function exibirAeronaves() {
+      console.log('Entrou no exibir...')
+      requestListaDeAeronaves()
+        .then(customResponse => {
+          // obteve resposta, vamos simplesmente exibir como mensagem:
+          if (customResponse.status === "SUCCESS") {
+            // vamos obter o que está no payload e chamar a função .
+            console.log("Deu certo a busca de aeronaves");
+            // agora chamar a função de exibição dos dados em tabela... 
+            // no payload voltou o Array com as aeronaves. 
+            // DEVEMOS antes, conferir se o ARRAY não está vazio. Faça essa mudança.
+            console.log('Payload:' + JSON.stringify(customResponse.payload));
+            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)))
+          } else {
+            // tratar corretamente o erro... (melhorar...)
+            console.log(customResponse.message);
+          }
+        })
+        .catch((e) => {
+          // FAZER O TRATAMENTO...
+          console.log("Não foi possível exibir." + e);
+        });
+    }
+
+  </script>
+</head>
+
+<body data-bs-theme="dark">
+  <h1>Aeronaves</h1>
+  <hr />
+  <table id="tblAeronaves" cellspacing="5" cellpadding="10" class="table table-striped">
+    <thead>
+      <tr>
+        <th width="5%" class="leftText">Código</th>
+        <th width="10%" class="leftText">Fabricante</th>
+        <th width="20%" class="leftText">Modelo</th>
+        <th width="10%" class="centerText">Referência</th>
+        <th width="10%" class="rightText">Ano Fab.</th>
+        <th width="10%" class="rightText">Qtde de Assentos</th>
+        <th width="10%" class="centerText">Opções</th>
+      </tr>
+    </thead>
+    <tbody id="dados-aeronave"></tbody>
+  </table>
+  
+  <div id="edit-aeronave" style="display: none;">
+    <input type="text" id="codigoAeronave" />
+    <input type="text" id="editFabricante" />
+    <input type="text" id="editModelo" />
+    <input type="text" id="editAnoFab" />
+    <input type="text" id="editReferencia" />
+    <input type="text" id="editTotalAssentos" />
+    <button onclick="salvarAlteracao()">Salvar</button>
+  </div>
+  
+  <div>
+    <p>
+      <button type="button" class="button" onclick="window.history.back();" id="btnSair" name="btnSair">Sair</button>
+    </p>
+  </div>
+  <script>
+     
+    // vamos chamar a função aqui no final para carregar as aeronaves depois
+    // que renderizar toda a página HTML.
+    exibirAeronaves();
+  </script>
+</body>
+
 </html>

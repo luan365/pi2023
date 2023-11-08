@@ -9,22 +9,20 @@ exports.rowsToTrechos = void 0;
 function rowsToTrechos(oracleRows) {
     // vamos converter um array any (resultados do oracle)
     // em um array de Trecho
-    let aeronaves = [];
-    let aeronave;
+    let trechos = [];
+    let trecho;
     if (oracleRows !== undefined) {
         oracleRows.forEach((registro) => {
-            aeronave = {
-                codigo: registro.CODIGO,
-                fabricante: registro.FABRICANTE,
-                modelo: registro.MODELO,
-                anoFabricacao: registro.ANO_FABRICACAO,
-                totalAssentos: registro.TOTAL_ASSENTOS,
-                referencia: registro.REFERENCIA,
+            trecho = {
+                nome: registro.NOME,
+                origem: registro.ORIGEM,
+                destino: registro.DESTINO,
+                aeronave: registro.AERONAVE,
             };
             // inserindo o novo Array convertido.
-            aeronaves.push(aeronave);
+            trechos.push(trecho);
         });
     }
-    return aeronaves;
+    return trechos;
 }
 exports.rowsToTrechos = rowsToTrechos;

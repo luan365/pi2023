@@ -61,6 +61,19 @@
         console.log("Falha grave ao alterar aeronave: " + e);
       });
   }
+  
+      /***
+       * Função que requisita a exclusão
+       */
+      function requestExcluirAeronave(body) {
+        const requestOptions = {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        };
+        return fetch('http://localhost:3000/excluirAeronave', requestOptions)
+          .then(T => T.json())
+      }
 
     /***
      * Função que busca as aeronaves chamando o serviço.
@@ -71,19 +84,6 @@
         headers: { 'Content-Type': 'application/json' },
       };
       return fetch('http://localhost:3000/listarAeronaves', requestOptions)
-        .then(T => T.json())
-    }
-
-    /***
-     * Função que requisita a exclusão
-     */
-    function requestExcluirAeronave(body) {
-      const requestOptions = {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      };
-      return fetch('http://localhost:3000/excluirAeronave', requestOptions)
         .then(T => T.json())
     }
 

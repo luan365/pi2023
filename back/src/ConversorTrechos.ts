@@ -9,22 +9,20 @@ import { Trecho } from "./Trecho";
 export function rowsToTrechos(oracleRows: unknown[] | undefined) : Array<Trecho> {
   // vamos converter um array any (resultados do oracle)
   // em um array de Trecho
-  let aeronaves: Array<Trecho> = [];
-  let aeronave;
+  let trechos: Array<Trecho> = [];
+  let trecho;
   if (oracleRows !== undefined){
     oracleRows.forEach((registro: any) => {
-      aeronave = {
-        codigo: registro.CODIGO,
-        fabricante: registro.FABRICANTE,
-        modelo: registro.MODELO,
-        anoFabricacao: registro.ANO_FABRICACAO,
-        totalAssentos: registro.TOTAL_ASSENTOS,
-        referencia: registro.REFERENCIA,
+      trecho = {
+        nome: registro.NOME,
+        origem: registro.ORIGEM,
+        destino: registro.DESTINO,
+        aeronave: registro.AERONAVE,
       } as Trecho;
 
       // inserindo o novo Array convertido.
-      aeronaves.push(aeronave);
+      trechos.push(trecho);
     })
   }
-  return aeronaves;
+  return trechos;
 }

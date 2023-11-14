@@ -1,0 +1,5 @@
+todo atributo composto e multivalorado se torna uma tabela
+Tenho que aprender que:
+*Toda vez que for realizado um cadastro de voo eu preciso automaticamente criar o mapa de assentos daquele voo no banco de dados.
+Vamos considerar que:
+*Ao cadastrar um voo ele será imediatamente oferecido para venda.

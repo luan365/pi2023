@@ -3,81 +3,253 @@
 
 <head>
   <link rel="stylesheet" type="text/css" href="../../../assets/css/listagem.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
   <link rel="icon" href="../../../assets/images/icone.png">
   <title>Aeronaves</title>
   <script lang="javascript">
 
-    function alterarAeronave(codigo) {
 
-      document.getElementById("edit-aeronave").style.display = "block";
-    const aeronave = obterAeronavePorCodigo(codigo);
-    if (aeronave) {
-      document.getElementById("codigoAeronave").value = codigo;
-      document.getElementById("editFabricante").value = aeronave.fabricante;
-      document.getElementById("editModelo").value = aeronave.modelo;
-      document.getElementById("editAnoFab").value = aeronave.anoFabricacao;
-      document.getElementById("editReferencia").value = aeronave.referencia;
-      document.getElementById("editTotalAssentos").value = aeronave.totalAssentos;
+
+    function anoValido() {
+      let resultado = false;
+      // obter o texto preenchido no campo anoFab
+      var strAno = document.getElementById("anoFab").value;
+      const ano = parseInt(strAno);
+      console.log("Ano aeronave: " + ano.toString());
+      if (ano >= 1990 && ano <= 2026) {
+        resultado = true;
+      }
+      return resultado;
     }
-  }
 
-  function salvarAlteracao() {
-    // Obtenha os dados da aeronave editada
-    const codigo = document.getElementById("codigoAeronave").value;
-    const fabricante = document.getElementById("editFabricante").value;
-    const modelo = document.getElementById("editModelo").value;
-    const anoFab = document.getElementById("editAnoFab").value;
-    const referencia = document.getElementById("editReferencia").value;
-    const totalAssentos = document.getElementById("editTotalAssentos").value;
+    // verifica se o campo total de assentos é numerico e válido
+    function totalAssentosValido() {
+      let resultado = false;
+      const strAssentos = document.getElementById("totalAssentos").value;
+      const assentos = parseInt(strAssentos);
+      if (assentos > 0) {
+        resultado = true;
+      }
+      return resultado;
+    }
 
-    // Valide os campos da aeronave se necessário
+    // funcao que verifica se selecionou ou não o fabricante.
+    function selecionouFabricante() {
+      let resultado = false;
+      var listaFabricantes = document.getElementById("comboFabricantes");
+      var valorSelecionado = listaFabricantes.value;
+      // se quiséssemos obter o TEXTO selecionado. 
+      // var text = listaFabricantes.options[listaFabricantes.selectedIndex].text;
+      if (valorSelecionado !== "0") {
+        resultado = true;
+      }
+      return resultado;
+    }
 
-    // Construa um objeto com os dados da aeronave a ser atualizada
-    const aeronaveData = {
-      codigo: codigo,
-      fabricante: fabricante,
-      modelo: modelo,
-      anoFabricacao: anoFab,
-      referencia: referencia,
-      totalAssentos: totalAssentos,
-    };
+    // funcao que verifica se preencheu o modelo.
+    function preencheuModelo() {
+      let resultado = false;
+      const modeloInformado = document.getElementById("modelo").value;
+      if (modeloInformado.length > 0) {
+        resultado = true;
+      }
+      return resultado;
+    }
 
-    // Envie a solicitação de alteração para o servidor
-    fetchAlterarAeronave(aeronaveData)
-      .then((customResponse) => {
-        if (customResponse.status === "SUCCESS") {
-          showStatusMessage("Aeronave alterada com sucesso.", false);
-          document.getElementById("edit-aeronave").style.display = "none";
-          document.getElementById("dados-aeronave").style.display = "block";
-          // Atualize a tabela aqui com os novos valores, se necessário
-        } else {
-          showStatusMessage("Erro ao alterar aeronave: " + customResponse.message, true);
-          console.log(customResponse.message);
-        }
-      })
-      .catch((e) => {
-        showStatusMessage("Erro técnico ao alterar aeronave. Entre em contato com o suporte.", true);
-        console.log("Falha grave ao alterar aeronave: " + e);
-      });
-  }
-  
-      /***
-       * Função que requisita a exclusão
-       */
-      function requestExcluirAeronave(body) {
-        const requestOptions = {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        };
-        return fetch('http://localhost:3000/excluirAeronave', requestOptions)
-          .then(T => T.json())
+    // funcao para verificar se preencheu o registro de referencia. 
+    function preencheuRegistro() {
+      let resultado = false;
+      const registroReferencia = document.getElementById("referencia").value;
+      if (registroReferencia.length > 0) {
+        resultado = true;
+      }
+      return resultado;
+    }
+
+
+    function alterarAeronave(codigo) {
+      document.getElementById("edit-aeronave").style.display = "block";
+
+      // Exibição dos campos
+      document.getElementById("exibicao_fabricante").style.display = "block";
+      document.getElementById("exibicao_modelo").style.display = "block";
+      document.getElementById("exibicao_anoFab").style.display = "block";
+      document.getElementById("exibicao_referencia").style.display = "block";
+      document.getElementById("exibicao_totalAssentos").style.display = "block";
+
+      // Edição dos campos
+      document.getElementById("editCodigoAeronave").value = codigo;
+      document.getElementById("editFabricante").value = document.getElementById("exibicao_fabricante").innerText;
+      document.getElementById("editModelo").value = document.getElementById("exibicao_modelo").innerText;
+      document.getElementById("editAnoFab").value = document.getElementById("exibicao_anoFab").innerText;
+      document.getElementById("editReferencia").value = document.getElementById("exibicao_referencia").innerText;
+      document.getElementById("editTotalAssentos").value = document.getElementById("exibicao_totalAssentos").innerText;
+
+      // Oculta campos de exibição
+      document.getElementById("exibicao_fabricante").style.display = "none";
+      document.getElementById("exibicao_modelo").style.display = "none";
+      document.getElementById("exibicao_anoFab").style.display = "none";
+      document.getElementById("exibicao_referencia").style.display = "none";
+      document.getElementById("exibicao_totalAssentos").style.display = "none";
+
+      if (!selecionouFabricante()) {
+        showStatusMessage("Selecione o fabricante...", true);
+        return;
       }
 
-    /***
-     * Função que busca as aeronaves chamando o serviço.
-     */
+      if (!preencheuModelo()) {
+        showStatusMessage("Preencha o modelo...", true);
+        return;
+      }
+
+      if (!preencheuRegistro()) {
+        showStatusMessage("Preencha o registro da aeronave...", true);
+        return;
+      }
+
+      if (!anoValido()) {
+        showStatusMessage("Ano deve de 1990 até 2026...", true);
+        return;
+      }
+
+      if (!totalAssentosValido()) {
+        showStatusMessage("Preencha corretamente o total de assentos.", true);
+        return;
+      }
+
+      // se chegou até aqui a execução do código, vamos alterar a aeronave. 
+      // obtendo os dados: 
+      const fabricante = document.getElementById("editFabricantes").value;
+      const modelo = document.getElementById("editModelo").value;
+      const anoFab = document.getElementById("editAnoFab").value;
+      const referencia = document.getElementById("editReferencia").value;
+      const totalAssentos = document.getElementById("editTotalAssentos").value;
+
+      // ESTUDAR O CONCEITO DE PROMISES.
+      fetchInserir({
+        fabricante: fabricante,
+        modelo: modelo,
+        totalAssentos: totalAssentos,
+        anoFabricacao: anoFab,
+        referencia: referencia
+      })
+        .then(customResponse => {
+          // obteve resposta, vamos simplesmente exibir como mensagem: 
+          if (customResponse.status === "SUCCESS") showStatusMessage("Aeronave alterarda... ", false);
+          else {
+            showStatusMessage("Erro ao alterar aeronave...: " + customResponse.message, true);
+            console.log(customResponse.message);
+          }
+        })
+        .catch((e) => {
+          showStatusMessage("Erro técnico ao alterar... Contate o suporte.\n" + e, true);
+          console.log("Falha grave ao alterar." + e)
+        });
+    }
+
+    function salvarAlteracao() {
+      // Obtenha os dados da aeronave ada
+      const codigo = document.getElementById("codigoAeronave").value;
+      const fabricante = document.getElementById("fabricante").value;
+      const modelo = document.getElementById("modelo").value;
+      const anoFab = document.getElementById("anoFab").value;
+      const referencia = document.getElementById("referencia").value;
+      const totalAssentos = document.getElementById("totalAssentos").value;
+
+      // Valide os campos da aeronave se necessário
+
+      // Construa um objeto com os dados da aeronave a ser atualizada
+      const aeronaveData = {
+        codigo: codigo,
+        fabricante: fabricante,
+        modelo: modelo,
+        anoFabricacao: anoFab,
+        referencia: referencia,
+        totalAssentos: totalAssentos,
+      };
+
+      // Envie a solicitação de alteração para o servidor
+      requestAlterarAeronave(aeronaveData)
+        .then((customResponse) => {
+          if (customResponse.status === "SUCCESS") {
+            showStatusMessage("Aeronave alterada com sucesso.", false);
+            document.getElementById("edit-aeronave").style.display = "none";
+            document.getElementById("dados-aeronave").style.display = "block";
+            // Atualize a tabela aqui com os novos valores, se necessário
+          } else {
+            showStatusMessage("Erro ao alterar aeronave: " + customResponse.message, true);
+            console.log(customResponse.message);
+          }
+        })
+        .catch((e) => {
+          showStatusMessage("Erro técnico ao alterar aeronave. Entre em contato com o suporte.", true);
+          console.log("Falha grave ao alterar aeronave: " + e);
+        });
+    }
+
+    function excluirAeronave(c) {
+      console.log('Clicou no excluir aeronave: ' + c);
+      // vamos fazer a exclusão
+      requestExcluirAeronave({ codigo: c })
+        .then(customResponse => {
+          // obteve resposta na exclusão, chamamos novamente o carregar.
+          if (customResponse.status === "SUCCESS") {
+            location.reload();
+          } else {
+            // tratar corretamente o erro... (melhorar...)
+            console.log(customResponse.message);
+          }
+        })
+        .catch((e) => {
+          console.log("Não foi possível excluir." + e);
+        });
+    }
+
+    function exibirAeronaves() {
+      console.log('Entrou no exibir...')
+      requestListaDeAeronaves()
+        .then(customResponse => {
+          // obteve resposta, vamos simplesmente exibir como mensagem:
+          if (customResponse.status === "SUCCESS") {
+            // vamos obter o que está no payload e chamar a função .
+            console.log("Deu certo a busca de aeronaves");
+            // agora chamar a função de exibição dos dados em tabela... 
+            // no payload voltou o Array com as aeronaves. 
+            // DEVEMOS antes, conferir se o ARRAY não está vazio. Faça essa mudança.
+            console.log('Payload:' + JSON.stringify(customResponse.payload));
+            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)))
+          } else {
+            // tratar corretamente o erro... (melhorar...)
+            console.log(customResponse.message);
+          }
+        })
+        .catch((e) => {
+          // FAZER O TRATAMENTO...
+          console.log("Não foi possível exibir." + e);
+        });
+    }
+
+    function requestExcluirAeronave(body) {
+      const requestOptions = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      };
+      return fetch('http://localhost:3000/excluirAeronave', requestOptions)
+        .then(T => T.json())
+    }
+
+    function requestAlterarAeronave(body) {
+      const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      };
+      return fetch('http://localhost:3000/alterarAeronave', requestOptions)
+        .then(T => T.json())
+    }
+
     function requestListaDeAeronaves() {
       const requestOptions = {
         method: 'GET',
@@ -129,47 +301,12 @@
       }
     }
 
+    function showStatusMessage(msg, error) {
+      var pStatus = document.getElementById("status");
+      if (error === true) pStatus.className = "statusError";
+      else pStatus.className = "statusSuccess";
 
-    function excluirAeronave(c) {
-      console.log('Clicou no excluir aeronave: ' + c);
-      // vamos fazer a exclusão
-      requestExcluirAeronave({ codigo: c })
-        .then(customResponse => {
-          // obteve resposta na exclusão, chamamos novamente o carregar.
-          if (customResponse.status === "SUCCESS") {
-            location.reload();
-          } else {
-            // tratar corretamente o erro... (melhorar...)
-            console.log(customResponse.message);
-          }
-        })
-        .catch((e) => {
-          console.log("Não foi possível excluir." + e);
-        });
-    }
-
-    function exibirAeronaves() {
-      console.log('Entrou no exibir...')
-      requestListaDeAeronaves()
-        .then(customResponse => {
-          // obteve resposta, vamos simplesmente exibir como mensagem:
-          if (customResponse.status === "SUCCESS") {
-            // vamos obter o que está no payload e chamar a função .
-            console.log("Deu certo a busca de aeronaves");
-            // agora chamar a função de exibição dos dados em tabela... 
-            // no payload voltou o Array com as aeronaves. 
-            // DEVEMOS antes, conferir se o ARRAY não está vazio. Faça essa mudança.
-            console.log('Payload:' + JSON.stringify(customResponse.payload));
-            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)))
-          } else {
-            // tratar corretamente o erro... (melhorar...)
-            console.log(customResponse.message);
-          }
-        })
-        .catch((e) => {
-          // FAZER O TRATAMENTO...
-          console.log("Não foi possível exibir." + e);
-        });
+      pStatus.textContent = msg;
     }
 
   </script>
@@ -192,9 +329,9 @@
     </thead>
     <tbody id="dados-aeronave"></tbody>
   </table>
-  
+
   <div id="edit-aeronave" style="display: none;">
-    <input type="text" id="codigoAeronave" />
+    <input type="text" id="editCodigoAeronave" />
     <input type="text" id="editFabricante" />
     <input type="text" id="editModelo" />
     <input type="text" id="editAnoFab" />
@@ -202,14 +339,15 @@
     <input type="text" id="editTotalAssentos" />
     <button onclick="salvarAlteracao()">Salvar</button>
   </div>
-  
+
   <div>
+    <p id="status" class="statusError"></p>
     <p>
       <button type="button" class="button" onclick="window.history.back();" id="btnSair" name="btnSair">Sair</button>
     </p>
   </div>
   <script>
-     
+
     // vamos chamar a função aqui no final para carregar as aeronaves depois
     // que renderizar toda a página HTML.
     exibirAeronaves();

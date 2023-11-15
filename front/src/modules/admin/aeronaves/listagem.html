@@ -258,11 +258,8 @@
       var pStatus = document.getElementById("status");
       let classeAlerta = "";
 
-      if (error) {
-        classeAlerta = "alert alert-danger";
-      } else {
-        classeAlerta = "alert alert-info";
-      }
+      if (error) classeAlerta = "alert alert-danger";
+      else classeAlerta = "alert alert-info";
 
       if (classeAlerta.length !== 0 && msg.length !== 0) {
         // Exibir o alerta

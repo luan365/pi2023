@@ -8,15 +8,11 @@
   <link rel="icon" href="../../../assets/images/icone.png">
   <title>Aeronaves</title>
   <script lang="javascript">
-
-
-
     function anoValido() {
       let resultado = false;
       // obter o texto preenchido no campo anoFab
-      var strAno = document.getElementById("anoFab").value;
+      var strAno = document.getElementById("editAnoFab").value;
       const ano = parseInt(strAno);
-      console.log("Ano aeronave: " + ano.toString());
       if (ano >= 1990 && ano <= 2026) {
         resultado = true;
       }
@@ -26,7 +22,7 @@
     // verifica se o campo total de assentos é numerico e válido
     function totalAssentosValido() {
       let resultado = false;
-      const strAssentos = document.getElementById("totalAssentos").value;
+      const strAssentos = document.getElementById("editTotalAssentos").value;
       const assentos = parseInt(strAssentos);
       if (assentos > 0) {
         resultado = true;
@@ -34,23 +30,19 @@
       return resultado;
     }
 
-    // funcao que verifica se selecionou ou não o fabricante.
-    function selecionouFabricante() {
+    // funcao que verifica se preencheu o fabricante.
+    function preencheuFabricante() {
       let resultado = false;
-      var listaFabricantes = document.getElementById("comboFabricantes");
-      var valorSelecionado = listaFabricantes.value;
-      // se quiséssemos obter o TEXTO selecionado. 
-      // var text = listaFabricantes.options[listaFabricantes.selectedIndex].text;
-      if (valorSelecionado !== "0") {
+      const fabricanteInformado = document.getElementById("editFabricante").value;
+      if (fabricanteInformado.length > 0) {
         resultado = true;
       }
       return resultado;
     }
-
     // funcao que verifica se preencheu o modelo.
     function preencheuModelo() {
       let resultado = false;
-      const modeloInformado = document.getElementById("modelo").value;
+      const modeloInformado = document.getElementById("editModelo").value;
       if (modeloInformado.length > 0) {
         resultado = true;
       }
@@ -60,41 +52,52 @@
     // funcao para verificar se preencheu o registro de referencia. 
     function preencheuRegistro() {
       let resultado = false;
-      const registroReferencia = document.getElementById("referencia").value;
+      const registroReferencia = document.getElementById("editReferencia").value;
       if (registroReferencia.length > 0) {
         resultado = true;
       }
       return resultado;
     }
 
+    function fetchInserir(body) {
+      const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      };
+      return fetch('http://localhost:3000/alterarAeronave', requestOptions)
+        .then(T => T.json())
+    }
 
     function alterarAeronave(codigo) {
       document.getElementById("edit-aeronave").style.display = "block";
 
+      // Obter os valores da linha clicada
+      fabricante = document.getElementById(`fabricante-${codigo}`).innerText;
+      modelo = document.getElementById(`modelo-${codigo}`).innerText;
+      anoFab = document.getElementById(`anoFab-${codigo}`).innerText;
+      referencia = document.getElementById(`referencia-${codigo}`).innerText;
+      totalAssentos = document.getElementById(`totalAssentos-${codigo}`).innerText;
+
+      document.getElementById("editFabricante").value = fabricante;
+      document.getElementById("editModelo").value = modelo;
+      document.getElementById("editAnoFab").value = anoFab;
+      document.getElementById("editReferencia").value = referencia;
+      document.getElementById("editTotalAssentos").value = totalAssentos;
+
       // Exibição dos campos
-      document.getElementById("exibicao_fabricante").style.display = "block";
-      document.getElementById("exibicao_modelo").style.display = "block";
-      document.getElementById("exibicao_anoFab").style.display = "block";
-      document.getElementById("exibicao_referencia").style.display = "block";
-      document.getElementById("exibicao_totalAssentos").style.display = "block";
+      document.getElementById("editFabricante").style.display = "inline";
+      document.getElementById("editModelo").style.display = "inline";
+      document.getElementById("editAnoFab").style.display = "inline";
+      document.getElementById("editReferencia").style.display = "inline";
+      document.getElementById("editTotalAssentos").style.display = "inline";
 
-      // Edição dos campos
-      document.getElementById("editCodigoAeronave").value = codigo;
-      document.getElementById("editFabricante").value = document.getElementById("exibicao_fabricante").innerText;
-      document.getElementById("editModelo").value = document.getElementById("exibicao_modelo").innerText;
-      document.getElementById("editAnoFab").value = document.getElementById("exibicao_anoFab").innerText;
-      document.getElementById("editReferencia").value = document.getElementById("exibicao_referencia").innerText;
-      document.getElementById("editTotalAssentos").value = document.getElementById("exibicao_totalAssentos").innerText;
+    }
 
-      // Oculta campos de exibição
-      document.getElementById("exibicao_fabricante").style.display = "none";
-      document.getElementById("exibicao_modelo").style.display = "none";
-      document.getElementById("exibicao_anoFab").style.display = "none";
-      document.getElementById("exibicao_referencia").style.display = "none";
-      document.getElementById("exibicao_totalAssentos").style.display = "none";
+    function salvarAlteracao(codigo) {
 
-      if (!selecionouFabricante()) {
-        showStatusMessage("Selecione o fabricante...", true);
+      if (!preencheuFabricante()) {
+        showStatusMessage("Informe o fabricante...", true);
         return;
       }
 
@@ -118,15 +121,13 @@
         return;
       }
 
-      // se chegou até aqui a execução do código, vamos alterar a aeronave. 
-      // obtendo os dados: 
-      const fabricante = document.getElementById("editFabricantes").value;
+      const fabricante = document.getElementById("editFabricante").value;
       const modelo = document.getElementById("editModelo").value;
       const anoFab = document.getElementById("editAnoFab").value;
       const referencia = document.getElementById("editReferencia").value;
       const totalAssentos = document.getElementById("editTotalAssentos").value;
 
-      // ESTUDAR O CONCEITO DE PROMISES.
+      // Envie a solicitação de alteração para o servidor
       fetchInserir({
         fabricante: fabricante,
         modelo: modelo,
@@ -136,8 +137,9 @@
       })
         .then(customResponse => {
           // obteve resposta, vamos simplesmente exibir como mensagem: 
-          if (customResponse.status === "SUCCESS") showStatusMessage("Aeronave alterarda... ", false);
-          else {
+          if (customResponse.status === "SUCCESS") {
+            showStatusMessage("Aeronave alterada... ", false);
+          } else {
             showStatusMessage("Erro ao alterar aeronave...: " + customResponse.message, true);
             console.log(customResponse.message);
           }
@@ -147,47 +149,6 @@
           console.log("Falha grave ao alterar." + e)
         });
     }
-
-    function salvarAlteracao() {
-      // Obtenha os dados da aeronave ada
-      const codigo = document.getElementById("codigoAeronave").value;
-      const fabricante = document.getElementById("fabricante").value;
-      const modelo = document.getElementById("modelo").value;
-      const anoFab = document.getElementById("anoFab").value;
-      const referencia = document.getElementById("referencia").value;
-      const totalAssentos = document.getElementById("totalAssentos").value;
-
-      // Valide os campos da aeronave se necessário
-
-      // Construa um objeto com os dados da aeronave a ser atualizada
-      const aeronaveData = {
-        codigo: codigo,
-        fabricante: fabricante,
-        modelo: modelo,
-        anoFabricacao: anoFab,
-        referencia: referencia,
-        totalAssentos: totalAssentos,
-      };
-
-      // Envie a solicitação de alteração para o servidor
-      requestAlterarAeronave(aeronaveData)
-        .then((customResponse) => {
-          if (customResponse.status === "SUCCESS") {
-            showStatusMessage("Aeronave alterada com sucesso.", false);
-            document.getElementById("edit-aeronave").style.display = "none";
-            document.getElementById("dados-aeronave").style.display = "block";
-            // Atualize a tabela aqui com os novos valores, se necessário
-          } else {
-            showStatusMessage("Erro ao alterar aeronave: " + customResponse.message, true);
-            console.log(customResponse.message);
-          }
-        })
-        .catch((e) => {
-          showStatusMessage("Erro técnico ao alterar aeronave. Entre em contato com o suporte.", true);
-          console.log("Falha grave ao alterar aeronave: " + e);
-        });
-    }
-
     function excluirAeronave(c) {
       console.log('Clicou no excluir aeronave: ' + c);
       // vamos fazer a exclusão
@@ -240,16 +201,6 @@
         .then(T => T.json())
     }
 
-    function requestAlterarAeronave(body) {
-      const requestOptions = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      };
-      return fetch('http://localhost:3000/alterarAeronave', requestOptions)
-        .then(T => T.json())
-    }
-
     function requestListaDeAeronaves() {
       const requestOptions = {
         method: 'GET',
@@ -275,12 +226,13 @@
 
         row.innerHTML =
           `
-            <td class="leftText">${aeronave.codigo}</td>
-            <td class="leftText">${aeronave.fabricante}</td>
-            <td class="leftText">${aeronave.modelo}</td>
-            <td class="centerText">${aeronave.referencia}</td>
-            <td class="rightText">${aeronave.anoFabricacao}</td>
-            <td class="rightText">${aeronave.totalAssentos}</td>
+          <td id="codigo-${aeronave.codigo}" class="leftText">${aeronave.codigo}</td>
+          <td id="fabricante-${aeronave.codigo}" class="leftText">${aeronave.fabricante}</td>
+          <td id="modelo-${aeronave.codigo}" class="leftText">${aeronave.modelo}</td>
+          <td id="anoFab-${aeronave.codigo}" class="rightText">${aeronave.anoFabricacao}</td>
+          <td id="referencia-${aeronave.codigo}" class="centerText">${aeronave.referencia}</td>
+          <td id="totalAssentos-${aeronave.codigo}" class="rightText">${aeronave.totalAssentos}</td>
+
             <td class="centerText">
               <img
                 src="/front/src/assets/images/delete_icon.png"
@@ -310,9 +262,37 @@
     }
 
   </script>
+  
 </head>
 
 <body data-bs-theme="dark">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
+              Menu
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Reservas</a></li>
+              <li><a class="dropdown-item" href="#">Check-in</a></li>
+            </ul>
+          </li>
+        </ul>
+        
+        <img type="button" src="/front/src/assets/images/userIcon.png" width="35px" style="margin-right: 15px;">
+        <a>Olá, Admin</a>
+
+      </div>
+    </div>
+  </nav>
   <h1>Aeronaves</h1>
   <hr />
   <table id="tblAeronaves" cellspacing="5" cellpadding="10" class="table table-striped">
@@ -330,21 +310,18 @@
     <tbody id="dados-aeronave"></tbody>
   </table>
 
-  <div id="edit-aeronave" style="display: none;">
-    <input type="text" id="editCodigoAeronave" />
-    <input type="text" id="editFabricante" />
-    <input type="text" id="editModelo" />
-    <input type="text" id="editAnoFab" />
-    <input type="text" id="editReferencia" />
-    <input type="text" id="editTotalAssentos" />
+  <div class="edit-aeronave" id="edit-aeronave" style="display: none;">
+    <input type="text" id="editFabricante" placeholder="Fabricante"/>
+    <input type="text" id="editModelo" placeholder="Modelo"/>
+    <input type="text" id="editAnoFab" placeholder="Ano"/>
+    <input type="text" id="editReferencia" placeholder="Referência"/>
+    <input type="text" id="editTotalAssentos" placeholder="Total de Assentos"/>
     <button onclick="salvarAlteracao()">Salvar</button>
   </div>
 
   <div>
     <p id="status" class="statusError"></p>
-    <p>
-      <button type="button" class="button" onclick="window.history.back();" id="btnSair" name="btnSair">Sair</button>
-    </p>
+
   </div>
   <script>
 

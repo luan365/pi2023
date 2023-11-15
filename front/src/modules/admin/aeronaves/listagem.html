@@ -254,15 +254,26 @@
     }
 
     function showStatusMessage(msg, error) {
+      document.getElementById("status").style.display = "block";
       var pStatus = document.getElementById("status");
-      if (error === true) pStatus.className = "statusError";
-      else pStatus.className = "statusSuccess";
+      let classeAlerta = "";
 
-      pStatus.textContent = msg;
+      if (error) {
+        classeAlerta = "alert alert-danger";
+      } else {
+        classeAlerta = "alert alert-info";
+      }
+
+      if (classeAlerta.length !== 0 && msg.length !== 0) {
+        // Exibir o alerta
+        pStatus.setAttribute('class', classeAlerta);
+        pStatus.innerHTML = msg;
+      }
     }
 
+
   </script>
-  
+
 </head>
 
 <body data-bs-theme="dark">
@@ -276,8 +287,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-              aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Menu
             </a>
             <ul class="dropdown-menu">
@@ -286,7 +296,7 @@
             </ul>
           </li>
         </ul>
-        
+
         <img type="button" src="/front/src/assets/images/userIcon.png" width="35px" style="margin-right: 15px;">
         <a>Olá, Admin</a>
 
@@ -311,17 +321,16 @@
   </table>
 
   <div class="edit-aeronave" id="edit-aeronave" style="display: none;">
-    <input type="text" id="editFabricante" placeholder="Fabricante"/>
-    <input type="text" id="editModelo" placeholder="Modelo"/>
-    <input type="text" id="editAnoFab" placeholder="Ano"/>
-    <input type="text" id="editReferencia" placeholder="Referência"/>
-    <input type="text" id="editTotalAssentos" placeholder="Total de Assentos"/>
+    <input type="text" id="editFabricante" placeholder="Fabricante" />
+    <input type="text" id="editModelo" placeholder="Modelo" />
+    <input type="text" id="editAnoFab" placeholder="Ano" />
+    <input type="text" id="editReferencia" placeholder="Referência" />
+    <input type="text" id="editTotalAssentos" placeholder="Total de Assentos" />
     <button onclick="salvarAlteracao()">Salvar</button>
   </div>
 
-  <div>
-    <p id="status" class="statusError"></p>
-
+  <div id="status" class="alert alert-info" role="alert" style="display: none;">
+    Avião alterado com sucesso
   </div>
   <script>
 

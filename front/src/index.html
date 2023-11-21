@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
@@ -8,67 +8,17 @@
   <title>AirPuc</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <script>
-    function requestListaTrechos() {
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      };
-      return fetch('http://localhost:3000/listarTrechos', requestOptions)
-        .then(T => T.json())
-    }
-    function preencherTabela(trechos) {
-
-      // acessando a referencia pelo id do tbody
-      const tblBody = document.getElementById("dados-trechos");
-
-      let trecho = "";
-      for (let i = 0; i < trechos.length; i++) {
-
-        trecho = trechos[i];
-        console.log("Dados do trecho: " + trecho);
-        // row representa a linha da tabela (um novo tr)
-        const row = document.createElement("tr");
-
-        row.innerHTML =
-          `
-            <td class="leftText">${trecho.nome}</td>
-            <td class="leftText">${trecho.origem}</td>
-            <td class="leftText">${trecho.destino}</td>
-            <td class="centerText">${trecho.aeronave}</td>
-          `
-
-        // adicionando a linha que representa a trecho. 
-        tblBody.appendChild(row);
-      }
+  <style>
+    .statusError {
+      color: red;
     }
 
-    function exibirTrechos() {
-      requestListaTrechos()
-        .then(customResponse => {
-          if (customResponse.status === "SUCCESS") {
-            document.getElementById("tblTrechos").style.display = "block";
-            console.log("Deu certo a busca dos trechos");
-            console.log('Payload:' + JSON.stringify(customResponse.payload));
-            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)))
-          } else console.log(customResponse.message);
-          
-        })
-        .catch((e) => {
-          console.log("Não foi possível exibir." + e);
-        });
+    .statusSuccess {
+      color: blue;
     }
-
-  </script>
+  </style>
 </head>
-<style>
-  .statusError{
-     color:red;
-  }
-  .statusSuccess{
-    color:blue;
-  }
-</style>
+
 <body data-bs-theme="dark">
   <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
@@ -129,20 +79,16 @@
               onblur="this.type='text'" id="dtVolta">
           </div>
         </div>
-        <div class="col-12">
-          <button 
-            type="button" 
-            class="btn btn-primary"
-            onclick="exibirTrechos()">
-            Buscar
-          </button>
-        </div>
+        <button type="button" class="btn btn-primary" id="btnBuscar">
+          Buscar
+        </button>
+      </form>
     </div>
-    </form>
   </div>
   <br><br>
   <div>
-    <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped" style="margin-top: 60px; display: none;">
+    <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped"
+      style="margin-top: 60px; display: none;">
       <thead>
         <tr>
           <th width="15%" class="leftText">Nome</th>
@@ -155,11 +101,67 @@
     </table>
   </div>
 
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
     crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const btnBuscar = document.getElementById('btnBuscar');
+      btnBuscar.addEventListener('click', exibirTrechos);
+    });
 
+    function requestListaTrechos() {
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      };
+
+      return fetch('http://localhost:3000/listarTrechos', requestOptions)
+      .then(T => T.json())
+    }
+
+    function preencherTabela(trechos, psgOrigem, psgDestino) {
+      const tblBody = document.getElementById('dados-trechos');
+      tblBody.innerHTML = ''; // Limpar conteúdo da tabela antes de preencher
+
+      for (let i = 0; i < trechos.length; i++) {
+        const trecho = trechos[i];
+        console.log('Dados do trecho: ' + trecho);
+        console.log('Origem:' + psgOrigem + '\nDestino:' + psgDestino)
+        const row = document.createElement('tr');
+        if ((trecho.origem === psgOrigem || trecho.origem === "") && (trecho.destino === psgDestino || trecho.destino === "")) {
+          row.innerHTML =
+            `
+            <td class="leftText">${trecho.nome}</td>
+            <td class="leftText">${trecho.origem}</td>
+            <td class="leftText">${trecho.destino}</td>
+            <td class="centerText">${trecho.aeronave}</td>
+          `;
+          tblBody.appendChild(row);
+        }
+      }
+    }
+
+    function exibirTrechos() {
+      const psgOrigem = document.getElementById('psgOrigem').value;
+      const psgDestino = document.getElementById('psgDestino').value;
+
+      requestListaTrechos()
+        .then(customResponse => {
+          if (customResponse.status === 'SUCCESS') {
+            document.getElementById('tblTrechos').style.display = 'block';
+            console.log('Deu certo a busca dos trechos');
+            console.log('Payload:' + JSON.stringify(customResponse.payload));
+            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)), psgOrigem, psgDestino);
+          } else {
+            console.log(customResponse.message);
+          }
+        })
+        .catch(e => {
+          console.log('Não foi possível exibir.' + e);
+        });
+    }
+  </script>
 </body>
 
 </html>

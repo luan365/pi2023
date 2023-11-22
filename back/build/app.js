@@ -112,8 +112,8 @@ app.put("/alterarAeronave", (req, res) => __awaiter(void 0, void 0, void 0, func
         let connection;
         try {
             const cmdUpdateAero = `UPDATE AERONAVES 
-                             SET FABRICANTE = :1, MODELO = :2, ANO_FABRICACAO = :3, TOTAL_ASSENTOS = :4, REFERENCIA = :5
-                             WHERE CODIGO = :6`;
+      SET FABRICANTE = :1, MODELO = :2, ANO_FABRICACAO = :3, TOTAL_ASSENTOS = :4, REFERENCIA = :5
+      WHERE CODIGO = :6`;
             const dados = [
                 aero.fabricante,
                 aero.modelo,
@@ -122,6 +122,9 @@ app.put("/alterarAeronave", (req, res) => __awaiter(void 0, void 0, void 0, func
                 aero.referencia,
                 codigo,
             ];
+            for (let i = 0; i < dados.length; i++)
+                console.log("dados: " + `${dados[i]}`);
+            console.log(codigo + " e " + aero.codigo);
             connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
             let resUpdate = yield connection.execute(cmdUpdateAero, dados);
             // Importante: efetuar o commit para gravar no Oracle.
@@ -224,20 +227,26 @@ app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, f
     let connection;
     try {
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        const cmdDeleteAero = `DELETE AERONAVES WHERE codigo = :1`;
+        const cmdDeleteAero = `DELETE FROM AERONAVES WHERE codigo = :1`;
         const dados = [codigo];
         let resDelete = yield connection.execute(cmdDeleteAero, dados);
-        // importante: efetuar o commit para gravar no Oracle.
-        yield connection.commit();
-        // obter a informação de quantas linhas foram inseridas. 
-        // neste caso precisa ser exatamente 1
-        const rowsDeleted = resDelete.rowsAffected;
-        if (rowsDeleted !== undefined && rowsDeleted === 1) {
-            cr.status = "SUCCESS";
-            cr.message = "Aeronave excluída.";
+        let result = yield connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`, [codigo]);
+        if (+result > 0) {
+            cr.message = "Aeronave não excluída. Aeronave está associada a um voo";
+            console.log(cr.message);
         }
         else {
-            cr.message = "Aeronave não excluída. Verifique se o código informado está correto.";
+            // importante: efetuar o commit para gravar no Oracle.
+            yield connection.commit();
+            // obter a informação de quantas linhas foram inseridas. 
+            // neste caso precisa ser exatamente 1
+            const rowsDeleted = resDelete.rowsAffected;
+            if (rowsDeleted !== undefined && rowsDeleted === 1) {
+                cr.status = "SUCCESS";
+                cr.message = "Aeronave excluída.";
+            }
+            else
+                cr.message = "Aeronave não excluída. Verifique se o código informado está correto.";
         }
     }
     catch (e) {

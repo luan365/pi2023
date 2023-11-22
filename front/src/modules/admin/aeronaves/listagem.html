@@ -8,6 +8,7 @@
   <link rel="icon" href="../../../assets/images/icone.png">
   <title>Aeronaves</title>
   <script lang="javascript">
+
     function anoValido() {
       let resultado = false;
       // obter o texto preenchido no campo anoFab
@@ -39,6 +40,7 @@
       }
       return resultado;
     }
+    
     // funcao que verifica se preencheu o modelo.
     function preencheuModelo() {
       let resultado = false;
@@ -141,7 +143,7 @@
             showStatusMessage("Aeronave alterada... ", false);
           } else {
             showStatusMessage("Erro ao alterar aeronave...: " + customResponse.message, true);
-            console.log(customResponse.message);
+            console.log("Erro: " + customResponse.message);
           }
         })
         .catch((e) => {
@@ -149,6 +151,7 @@
           console.log("Falha grave ao alterar." + e)
         });
     }
+
     function excluirAeronave(c) {
       console.log('Clicou no excluir aeronave: ' + c);
       // vamos fazer a exclusão
@@ -267,8 +270,6 @@
         pStatus.innerHTML = msg;
       }
     }
-
-
   </script>
 
 </head>
@@ -303,17 +304,18 @@
   <h1>Aeronaves</h1>
   <hr />
   <table id="tblAeronaves" cellspacing="5" cellpadding="10" class="table table-striped">
-    <thead>
-      <tr>
-        <th width="5%" class="leftText">Código</th>
-        <th width="10%" class="leftText">Fabricante</th>
-        <th width="20%" class="leftText">Modelo</th>
-        <th width="10%" class="centerText">Referência</th>
-        <th width="10%" class="rightText">Ano Fab.</th>
-        <th width="10%" class="rightText">Qtde de Assentos</th>
-        <th width="10%" class="centerText">Opções</th>
-      </tr>
-    </thead>
+  <thead>
+    <tr>
+      <th width="5%" class="leftText">Código</th>
+      <th width="10%" class="leftText">Fabricante</th>
+      <th width="20%" class="leftText">Modelo</th>
+      <th width="10%" class="rightText">Ano Fab.</th>
+      <th width="10%" class="centerText">Referência</th>
+      <th width="10%" class="rightText">Qtde de Assentos</th>
+      <th width="10%" class="centerText">Opções</th>
+    </tr>
+  </thead>
+
     <tbody id="dados-aeronave"></tbody>
   </table>
 

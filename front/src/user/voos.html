@@ -43,13 +43,65 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
         <script>
-            ExibirTrechos();
 
-            ExibirTrechos()
-            {
-                const codTrecho = localStorage("codTrecho");
+            function requestListaTrechos() {
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                };
 
+                return fetch('http://localhost:3000/listarTrechos', requestOptions)
+                    .then(T => T.json())
             }
+
+            function preencherTabela(trechos, psgOrigem, psgDestino) {
+                const tblBody = document.getElementById('dados-trechos');
+
+                for (let i = 0; i < trechos.length; i++) {
+                    const trecho = trechos[i];
+                    console.log('Dados do trecho: ' + trecho);
+                    const row = document.createElement('tr');
+
+                    row.innerHTML =
+                        `
+                <td class="leftText">${trecho.nome}</td>
+                <td class="leftText">${trecho.origem}</td>
+                <td class="leftText">${trecho.destino}</td>
+                <td class="centerText">${trecho.aeronave}</td>
+                <td class="centerText">
+                <img
+                    src="/front/src/assets/images/search_icon.png";
+                    width="35px";
+                    onclick="buscarTrecho(${trecho.codigo});"
+                    style="margin-right: 25px;"
+                />
+            `;
+                    tblBody.appendChild(row);
+
+                }
+            }
+            
+            function exibirTrechos() {
+
+                const psgOrigem = document.getElementById('psgOrigem').value;
+                const psgDestino = document.getElementById('psgDestino').value;
+
+                requestListaTrechos()
+                    .then(customResponse => {
+                        if (customResponse.status === 'SUCCESS') {
+                            document.getElementById('tblTrechos').style.display = 'block';
+                            console.log('Deu certo a busca dos trechos');
+                            console.log('Payload:' + JSON.stringify(customResponse.payload));
+                            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)), psgOrigem, psgDestino);
+                        } else {
+                            console.log(customResponse.message);
+                        }
+                    })
+                    .catch(e => {
+                        console.log('Não foi possível exibir.' + e);
+                    });
+            }
+            
         </script>
     </body>
 

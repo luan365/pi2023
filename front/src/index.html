@@ -45,45 +45,46 @@
         <div class="position-absolute top-50 start-50 translate-middle rounded"
             style="background-color: rgb(68, 68, 68); margin-top: 12%; padding: 1% 2%;">
             <h2>Passagens aéreas</h2>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="idaEVolta" checked>
-                <label class="form-check-label" for="idaEVolta">
-                    Ida e volta
-                </label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="flexRadioDefault" id="ida">
-                <label class="form-check-label" for="ida">
-                    Somente ida
-                </label>
-            </div>
-            <form class="row row-cols-lg-auto g-3 align-items-center">
-                <div class="col-12">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="psgOrigem" placeholder="Cidade origem">
-
-                        <input type="text" class="form-control" id="psgDestino" placeholder="Cidade destino">
-                    </div>
+            <div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="idaEVolta" checked>
+                    <label class="form-check-label" for="idaEVolta">
+                        Ida e volta
+                    </label>
                 </div>
-
-                <div class="col-12" id="campoDestino">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Data Ida" onfocus="this.type='date'"
-                            onblur="this.type='text'" id="dtIda">
-                        <input type="text" class="form-control" placeholder="Data Volta" onfocus="this.type='date'"
-                            onblur="this.type='text'" id="dtVolta">
-                    </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="ida">
+                    <label class="form-check-label" for="ida">
+                        Somente ida
+                    </label>
                 </div>
-                <button type="button" class="btn btn-primary" id="btnBuscar">
-                    Buscar
-                </button>
+                <form class="row row-cols-lg-auto g-3 align-items-center">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="psgOrigem" placeholder="Cidade origem">
+
+                            <input type="text" class="form-control" id="psgDestino" placeholder="Cidade destino">
+                        </div>
+                    </div>
+
+                    <div class="col-12" id="campoDestino">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Data Ida" onfocus="this.type='date'"
+                                onblur="this.type='text'" id="dtIda">
+                            <input type="text" class="form-control" placeholder="Data Volta" onfocus="this.type='date'"
+                                onblur="this.type='text'" id="dtVolta">
+                        </div>
+                    </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="btnBuscar" style="margin-top: 15px;">
+                Buscar
+            </button>
             </form>
         </div>
     </div>
     <br><br>
     <div>
-        <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped"
-            style="margin-top: 60px; display: none;">
+        <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped" style="margin-top: 100px;">
             <thead>
                 <tr>
                     <th width="15%" class="leftText">Nome</th>
@@ -92,22 +93,23 @@
                     <th width="25%" class="centerText">Aeronave</th>
                 </tr>
             </thead>
-            <tbody id="dados-trechos" class=""></tbody>
+            <tbody id="dados-trechos"></tbody>
         </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
     <script>
-
         document.addEventListener('DOMContentLoaded', function () {
+            // É chamando quando botão buscar é clicado
             const btnBuscar = document.getElementById('btnBuscar');
             btnBuscar.addEventListener('click', exibirTrechos);
 
-            // Detecta mudanças
+            // É chamando quando o botão somenente Ida é clicado
             const idaRadio = document.getElementById('ida');
             idaRadio.addEventListener('change', toggleCampoDestino);
+            
+            // É chamando quando o botão somenente Volta é clicado
             const idaEVoltaRadio = document.getElementById('idaEVolta');
             idaEVoltaRadio.addEventListener('change', toggleCampoDestino);
 
@@ -118,23 +120,40 @@
         function toggleCampoDestino() {
             const campoDestino = document.getElementById('psgDestino');
             const campoOrigem = document.getElementById('psgOrigem');
+
+            const dataIda = document.getElementById('dtIda');
+            const dataVolta = document.getElementById('dtVolta');
+
             const idaRadio = document.getElementById('ida');
+
             if (idaRadio.checked) {
                 campoDestino.style.display = 'none';
                 campoOrigem.style.borderBottomLeftRadius = "5x";
                 campoOrigem.style.borderBottomLeftRadius = "5px";
                 campoOrigem.style.borderTopRightRadius = "5px";
                 campoOrigem.style.borderBottomRightRadius = "5px";
+
+                dataVolta.style.display = 'none';
+                dataIda.style.borderBottomLeftRadius = "5x";
+                dataIda.style.borderBottomLeftRadius = "5px";
+                dataIda.style.borderTopRightRadius = "5px";
+                dataIda.style.borderBottomRightRadius = "5px";
             }
-                
+
             else {
                 campoDestino.style.display = 'block';
                 campoOrigem.style.borderTopLeftRadius = "5px";
                 campoOrigem.style.borderBottomLeftRadius = "5px";
                 campoOrigem.style.borderTopRightRadius = "0px";
                 campoOrigem.style.borderBottomRightRadius = "0px";
+
+                dataVolta.style.display = 'block';
+                dataIda.style.borderTopLeftRadius = "5px";
+                dataIda.style.borderBottomLeftRadius = "5px";
+                dataIda.style.borderTopRightRadius = "0px";
+                dataIda.style.borderBottomRightRadius = "0px";
             }
-            
+
         }
 
         function requestListaTrechos() {
@@ -149,28 +168,26 @@
 
         function preencherTabela(trechos, psgOrigem, psgDestino) {
             const tblBody = document.getElementById('dados-trechos');
-            tblBody.innerHTML = ''; // Limpar conteúdo da tabela antes de preencher
 
             for (let i = 0; i < trechos.length; i++) {
                 const trecho = trechos[i];
                 console.log('Dados do trecho: ' + trecho);
-                console.log('Origem:' + psgOrigem + '\nDestino:' + psgDestino)
                 const row = document.createElement('tr');
-                if ((trecho.origem === psgOrigem || trecho.origem === "") && (trecho.destino === psgDestino || trecho.destino === "")) {
-                    row.innerHTML =
-                        `
+
+                row.innerHTML =
+                    `
             <td class="leftText">${trecho.nome}</td>
             <td class="leftText">${trecho.origem}</td>
             <td class="leftText">${trecho.destino}</td>
             <td class="centerText">${trecho.aeronave}</td>
           `;
-                    tblBody.appendChild(row);
-                }
+                tblBody.appendChild(row);
+
             }
         }
 
         function exibirTrechos() {
-            
+
             document.getElementById("dados-trechos").style.display = 'block';
             const psgOrigem = document.getElementById('psgOrigem').value;
             const psgDestino = document.getElementById('psgDestino').value;
@@ -190,6 +207,7 @@
                     console.log('Não foi possível exibir.' + e);
                 });
         }
+
     </script>
 </body>
 

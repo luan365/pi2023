@@ -221,7 +221,6 @@
       let aeronave = "";
       // creating all cells
       for (let i = 0; i < aeronaves.length; i++) {
-
         aeronave = aeronaves[i];
         console.log("Dados da aeronave: " + aeronave);
         // row representa a linha da tabela (um novo tr)
@@ -249,7 +248,7 @@
                 onclick="alterarAeronave(${aeronave.codigo});"
               />
             </td>
-            `
+            `;
 
         // adicionando a linha que representa a aeronave. 
         tblBody.appendChild(row);
@@ -303,6 +302,7 @@
   </nav>
   <h1>Aeronaves</h1>
   <hr />
+  <div>
   <table id="tblAeronaves" cellspacing="5" cellpadding="10" class="table table-striped">
   <thead>
     <tr>
@@ -318,7 +318,7 @@
 
     <tbody id="dados-aeronave"></tbody>
   </table>
-
+</div>
   <div class="edit-aeronave" id="edit-aeronave" style="display: none;">
     <input type="text" id="editFabricante" placeholder="Fabricante" />
     <input type="text" id="editModelo" placeholder="Modelo" />
@@ -329,7 +329,7 @@
   </div>
 
   <div id="status" class="alert alert-info" role="alert" style="display: none;">
-    Avião alterado com sucesso
+    Aeronave alterado com sucesso
   </div>
   <script>
 

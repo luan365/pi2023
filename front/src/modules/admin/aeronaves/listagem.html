@@ -234,21 +234,20 @@
           <td id="anoFab-${aeronave.codigo}" class="rightText">${aeronave.anoFabricacao}</td>
           <td id="referencia-${aeronave.codigo}" class="centerText">${aeronave.referencia}</td>
           <td id="totalAssentos-${aeronave.codigo}" class="rightText">${aeronave.totalAssentos}</td>
-
-            <td class="centerText">
-              <img
-                src="/front/src/assets/images/delete_icon.png"
-                width="45"
-                onclick="excluirAeronave(${aeronave.codigo});"
-                style="margin-right: 25px;"
-              />
-              <img
-                src="/front/src/assets/images/edit_icon.png"
-                width="40"
-                onclick="alterarAeronave(${aeronave.codigo});"
-              />
-            </td>
-            `;
+          <td class="centerText">
+            <img
+            src="/front/src/assets/images/delete_icon.png"
+            width="45"
+            onclick="excluirAeronave(${aeronave.codigo});"
+            style="margin-right: 25px;"
+            />
+            <img
+            src="/front/src/assets/images/edit_icon.png"
+            width="40"
+            onclick="alterarAeronave(${aeronave.codigo});"
+            />
+          </td>
+          `;
 
         // adicionando a linha que representa a aeronave. 
         tblBody.appendChild(row);

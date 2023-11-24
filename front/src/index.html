@@ -84,7 +84,7 @@
     </div>
     <br><br>
     <div>
-        <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped" style="margin-top: 100px;">
+        <table id="tblTrechos" cellspacing="5" cellpadding="10" class="table table-striped" style="margin-top: 100px; display: none;">
             <thead>
                 <tr>
                     <th width="15%" class="leftText">Nome</th>
@@ -180,6 +180,13 @@
             <td class="leftText">${trecho.origem}</td>
             <td class="leftText">${trecho.destino}</td>
             <td class="centerText">${trecho.aeronave}</td>
+            <td class="centerText">
+              <img
+                src="/front/src/assets/images/search_icon.png";
+                width="35px";
+                onclick="excluirAeronave(${trecho.codigo});"
+                style="margin-right: 25px;"
+              />
           `;
                 tblBody.appendChild(row);
 
@@ -188,7 +195,6 @@
 
         function exibirTrechos() {
 
-            document.getElementById("dados-trechos").style.display = 'block';
             const psgOrigem = document.getElementById('psgOrigem').value;
             const psgDestino = document.getElementById('psgDestino').value;
 

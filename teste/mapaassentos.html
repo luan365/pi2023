@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa de Assentos</title>
+    <style>
+      /* Adicione seus estilos CSS aqui */
+      .fil {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px; /* Reduzi o espaçamento entre as fileiras */
+      }
+
+      .seat {
+        width: 30px; /* Definição de largura fixa para os assentos */
+        height: 30px; /* Definição de altura fixa para os assentos */
+        margin: 5px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .selected {
+        background-color: #3498db;
+        color: #fff;
+      }
+
+      /* Adicione espaçamento entre todas as colunas */
+      .fil > .seat:nth-child(2),
+      .fil > .seat:nth-child(5) {
+        margin-right: 40px; /* Aumentei o espaçamento entre colunas */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="gerar-mapa"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const mapaContainer = document.getElementById("gerar-mapa");
+        const totalAssentos = 200;
+        const assentosPorFileira = 7;
+
+        const getRowLabel = (row) => {
+          let label = '';
+          while (row >= 0) {
+            label = String.fromCharCode(65 + (row % 26)) + label;
+            row = Math.floor(row / 26) - 1;
+          }
+          return label;
+        };
+
+        let assentosCriados = 0;
+
+        for (let row = 0; assentosCriados < totalAssentos; row++) {
+          const fileira = document.createElement("div");
+          fileira.className = "fil";
+
+          for (let col = 1; col <= assentosPorFileira; col++) {
+            const assento = document.createElement("div");
+            assento.className = "seat";
+            assento.textContent = `${getRowLabel(row)}${col}`;
+            assento.addEventListener("click", function () {
+              document.querySelectorAll(".seat").forEach(function (seat) {
+                seat.classList.remove("selected");
+              });
+
+              this.classList.add("selected");
+            });
+
+            fileira.appendChild(assento);
+
+            assentosCriados++;
+            if (assentosCriados >= totalAssentos) {
+              break;
+            }
+          }
+
+          mapaContainer.appendChild(fileira);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="../front/src/assets/images/icone.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <title>Mapa de Assentos</title>
     <style>
       /* Adicione seus estilos CSS aqui */
@@ -22,12 +25,6 @@
         align-items: center;
         justify-content: center;
       }
-
-      .selected {
-        background-color: #3498db;
-        color: #fff;
-      }
-
       /* Adicione espaçamento entre todas as colunas */
       .fil > .seat:nth-child(2),
       .fil > .seat:nth-child(5) {
@@ -35,14 +32,49 @@
       }
     </style>
   </head>
-  <body>
-    <div id="gerar-mapa"></div>
+  <body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Reservas</a></li>
+                            <li><a class="dropdown-item" href="#">Check-in</a></li>
+                        </ul>
+                    </li>
+                </ul>
 
-    <script>
+                <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
+                <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
+
+            </div>
+        </div>
+    </nav>
+    <table id="tblAssentos" cellspacing="5" cellpadding="10" class="table table-striped"
+    style="margin-top: 100px;">
+  <thead>
+    <tr id="colunas"></tr>
+  </thead>
+  <tbody id="mapa-assentos"></tbody>
+</table>
+
+     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const mapaContainer = document.getElementById("gerar-mapa");
-        const totalAssentos = 200;
-        const assentosPorFileira = 7;
+        const mapaContainer = document.getElementById("mapa-assentos");
+        const colunasContainer = document.getElementById("colunas");
+        const totalAssentos = 8;
+        const assentosPorFileira = 4;
 
         const getRowLabel = (row) => {
           let label = '';
@@ -53,24 +85,43 @@
           return label;
         };
 
+        const createSeat = (row, col) => {
+          const assento = document.createElement("td");
+          assento.className = "seat";
+          assento.textContent = `${getRowLabel(col - 1)}${row + 1}`;
+          assento.addEventListener("click", function () {
+            document.querySelectorAll(".seat").forEach(function (seat) {
+              seat.classList.remove("selected");
+            });
+
+            this.classList.add("selected");
+          });
+
+          return assento;
+        };
+
+        // Adiciona números acima da tabela
+        const numerosColuna = document.createElement("td");
+        colunasContainer.appendChild(numerosColuna);
+        for (let i = 1; i <= assentosPorFileira; i++) {
+          const numero = document.createElement("div");
+          numero.textContent = i;
+          numerosColuna.appendChild(numero);
+        }
+
         let assentosCriados = 0;
 
         for (let row = 0; assentosCriados < totalAssentos; row++) {
-          const fileira = document.createElement("div");
+          const fileira = document.createElement("tr");
           fileira.className = "fil";
 
+          // Adiciona letra da fileira à esquerda
+          const letraFileira = document.createElement("td");
+          letraFileira.textContent = getRowLabel(row);
+          fileira.appendChild(letraFileira);
+
           for (let col = 1; col <= assentosPorFileira; col++) {
-            const assento = document.createElement("div");
-            assento.className = "seat";
-            assento.textContent = `${getRowLabel(row)}${col}`;
-            assento.addEventListener("click", function () {
-              document.querySelectorAll(".seat").forEach(function (seat) {
-                seat.classList.remove("selected");
-              });
-
-              this.classList.add("selected");
-            });
-
+            const assento = createSeat(row, col);
             fileira.appendChild(assento);
 
             assentosCriados++;

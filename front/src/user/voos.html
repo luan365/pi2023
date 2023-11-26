@@ -1,65 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="../assets/images/icone.png">
-        <title>AirPuc</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    </head>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="../assets/images/icone.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Mapa de Assentos</title>
+    <style>
+      /* Adicione seus estilos CSS aqui */
+      .fil {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px; /* Reduzi o espaçamento entre as fileiras */
+      }
 
-    <body data-bs-theme="dark">
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Menu
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Reservas</a></li>
-                                <li><a class="dropdown-item" href="#">Check-in</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+      .seat {
+        width: 30px; /* Definição de largura fixa para os assentos */
+        height: 30px; /* Definição de altura fixa para os assentos */
+        margin: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: url('../assets/images/assento.png');
+        background-size: cover;
+      }
 
-                    <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
-                    <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
+      .selected {
+        background-image: url('../assets/images/assentoSelecionado.png');
+      }
 
-                </div>
+      /* Adicione espaçamento entre todas as colunas */
+      .fil > .seat:nth-child(3),
+      .fil > .seat:nth-child(5) {
+        margin-right: 40px; /* Aumentei o espaçamento entre colunas */
+      }
+    </style>
+  </head>
+  <body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-e#panded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Reservas</a></li>
+                            <li><a class="dropdown-item" href="#">Check-in</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
+                <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
+
             </div>
-        </nav>
-        
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
-        <script>
+        </div>
+    </nav>
+    <table id="tblMapa" cellspacing="5" cellpadding="10" class="table table-striped"
+    style="margin-top: 100px;">
+  <thead>
+    <tr id="colunas"></tr>
+  </thead>
+  <tbody id="mapa-assentos"></tbody>
+</table>
 
-            function requestListaTrechos() {
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                };
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    
+    const mapaContainer = document.getElementById("mapa-assentos");
+    const colunasContainer = document.getElementById("colunas");
+    let codigoAeronave = localStorage.getItem("codTrecho");
+    // Substitua a linha abaixo para obter o total de assentos da aeronave do banco de dados.
+    const totalAssentos = 60;
+    const assentosPorFileira = 6;
 
-                return fetch('http://localhost:3000/listarTrechos', requestOptions)
-                    .then(T => T.json())
-            }
+    const getRowLabel = (row) => {
+      let label = '';
+      while (row >= 0) {
+        label = String.fromCharCode(65 + (row % 26)) + label;
+        row = Math.floor(row / 26) - 1;
+      }
+      return label;
+    };
 
-            function preencherTabela(trechos, psgOrigem, psgDestino) {
-                const tblBody = document.getElementById('dados-trechos');
+    const createSeat = (row, col) => {
+      const assento = document.createElement("td");
+      assento.className = "seat";
+      assento.dataset.row = row;
+      assento.dataset.col = col;
+      assento.addEventListener("click", function () {
+        // Toggle the "selected" class when clicked
+        this.classList.toggle("selected");
+      });
 
-                for (let i = 0; i < trechos.length; i++) {
-                    const trecho = trechos[i];
-                    console.log('Dados do trecho: ' + trecho);
+      return assento;
+    };
+
+    // Adiciona números acima da tabela
+    const numerosColuna = document.createElement("td");
+    colunasContainer.appendChild(numerosColuna);
+    for (let i = 1; i <= assentosPorFileira; i++) {
+      const numero = document.createElement("th");
+      numero.textContent = i;
+      numerosColuna.appendChild(numero);
+    }
+
+    let assentosCriados = 0;
+
+    for (let row = 0; assentosCriados < totalAssentos; row++) {
+      const fileira = document.createElement("tr");
+      fileira.className = "fil";
+
+      // Adiciona letra da fileira à esquerda
+      const letraFileira = document.createElement("td");
+      letraFileira.textContent = getRowLabel(row);
+      fileira.appendChild(letraFileira);
+
+      for (let col = 1; col <= assentosPorFileira; col++) {
+        const assento = createSeat(row, col);
+        fileira.appendChild(assento);
+
+        assentosCriados++;
+        if (assentosCriados >= totalAssentos) {
+          break;
+        }
+      }
+
+      mapaContainer.appendChild(fileira);
+    }
+
+    }
+  );
+/*
+  function preencherTabela(assentos) {
+                const tblBody = document.getElementById('mapa-assentos');
+
+                for (let i = 0; i < assentos.length; i++) {
+                    const trecho = assentos[i];
                     const row = document.createElement('tr');
 
                     row.innerHTML =
@@ -72,7 +160,7 @@
                 <img
                     src="/front/src/assets/images/search_icon.png";
                     width="35px";
-                    onclick="buscarTrecho(${trecho.codigo});"
+                    onclick="exibirMapa(${trecho.codigo});"
                     style="margin-right: 25px;"
                 />
             `;
@@ -80,19 +168,27 @@
 
                 }
             }
+
+            function requestListaMapa() {
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                };
+
+                return fetch('http://localhost:3000/listarMapa', requestOptions)
+                    .then(T => T.json())
+            }
+
             
-            function exibirTrechos() {
+            function exibirMapa() {
 
-                const psgOrigem = document.getElementById('psgOrigem').value;
-                const psgDestino = document.getElementById('psgDestino').value;
-
-                requestListaTrechos()
+                requestListaMapa()
                     .then(customResponse => {
                         if (customResponse.status === 'SUCCESS') {
-                            document.getElementById('tblTrechos').style.display = 'block';
-                            console.log('Deu certo a busca dos trechos');
+                            document.getElementById('tblMapa').style.display = 'block';
+                            console.log('Deu certo a busca do mapa');
                             console.log('Payload:' + JSON.stringify(customResponse.payload));
-                            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)), psgOrigem, psgDestino);
+                            preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)));
                         } else {
                             console.log(customResponse.message);
                         }
@@ -100,9 +196,9 @@
                     .catch(e => {
                         console.log('Não foi possível exibir.' + e);
                     });
-            }
-            
-        </script>
-    </body>
+            }           
+*/
 
+</script>
+</body>
 </html>

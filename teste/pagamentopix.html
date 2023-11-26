@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento com PIX</title>
+
+    <!-- Adicione o link para o Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column; 
+            height: 100vh;
+            background-color: #343a40; 
+            color: #ffffff; 
+        }
+
+        #pixCodeContainer {
+            background-color: #212529; 
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+            margin-top: 20px; 
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px; 
+            display: block;
+        }
+
+        #emailInput {
+            width: 250px;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Campo de E-mail -->
+<label for="emailInput">Informe seu e-mail:</label>
+<input type="email" id="emailInput" placeholder="seuemail@example.com">
+
+<!-- Botão de Pagamento com PIX -->
+<button type="button" onclick="generatePixCode()">Gerar Código PIX</button>
+
+<!-- Container do Código PIX -->
+<div id="pixCodeContainer"></div>
+
+<!-- Adicione o link para o Bootstrap JS e o Popper.js para suporte ao dropdown -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function generatePixCode() {
+        // Obtém o valor do e-mail do campo de entrada
+        var email = document.getElementById('emailInput').value;
+
+        // Verifica se o e-mail foi fornecido
+        if (!email) {
+            alert("Por favor, informe seu e-mail.");
+            return;
+        }
+
+        // Simulação de geração de código PIX aleatório
+        var randomValue = Math.random().toString(36).substring(7);
+
+        var pixCodeContainer = document.getElementById('pixCodeContainer');
+        pixCodeContainer.innerHTML = '<p>Escaneie o QR Code ou utilize o código abaixo para o pagamento:</p>' +
+                                     '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + email + '%3Famount%3D10%26description%3D' + randomValue + '" alt="QR Code PIX">' +
+                                     '<p>' + email + '</p>' +
+                                     '<p>Código: ' + randomValue + '</p>';
+        pixCodeContainer.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+"use strict";
+const oracledb = require("oracledb");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const oraConnAttribs = {
+    user: process.env.ORACLE_DB_USER,
+    password: process.env.ORACLE_DB_PASSWORD,
+    connectionString: process.env.ORACLE_CONN_STR,
+};
+
+async function connectToDatabase() {
+    let connection;
+
+    try {
+        connection = await oracledb.getConnection(oraConnAttribs);
+        console.log("Conectado ao banco de dados Oracle");
+
+        // Supondo que você tenha o ID do voo disponível quando o usuário clicar para comprar
+        const idVooClicado = 'ID_DO_VOO_CLICADO'; // Substitua pelo ID real do voo clicado
+        const totalAssentos = await getNumberOfSeats(connection, idVooClicado);
+        console.log("Número total de assentos para o voo clicado:", totalAssentos);
+    } catch (err) {
+        console.error("Erro ao conectar ao banco de dados Oracle:", err);
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+                console.log("Conexão fechada");
+            } catch (err) {
+                console.error("Erro ao fechar a conexão:", err);
+            }
+        }
+    }
+}
+
+async function getNumberOfSeats(connection, selectedFlightId) {
+    // Substitua esta consulta pelo seu próprio SQL para obter o número de assentos para o voo específico
+    const sql = `
+        SELECT aeronaves.total_assentos
+        FROM voos
+        JOIN aeronaves ON voos.codigo = aeronaves.codigo
+        WHERE voos.id_voo = :id
+    `;
+    const result = await connection.execute(sql, [selectedFlightId]);
+    return result.rows[0].TOTAL_ASSENTOS;  // Corrigido para TOTAL_ASSENTOS
+}
+
+// Chama a função principal para conectar ao banco de dados e obter o número de assentos
+connectToDatabase();

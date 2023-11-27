@@ -26,7 +26,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #fff;
+            background-color: rgba(0, 0, 0, 0.1);
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -108,20 +108,27 @@
 
         // Simulação de verificação
         if (cardNumber.endsWith('8')) {
-            showMessage('Erro Técnico');
+            showMessage('Erro Técnico, favor contatar o suporte...', false);
         } else if (cardNumber.endsWith('9')) {
-            showMessage('Erro de Saldo: Saldo insuficiente no cartão.');
+            showMessage('Erro de Saldo: Saldo insuficiente no cartão, contate o banco', false);
         } else {
-            showMessage('Pagamento processado com sucesso!');
+            showMessage('Pagamento processado com sucesso! O bilhete foi enviado ao seu email!', true);
             // Aqui você pode adicionar lógica para enviar os dados ao servidor
         }
     }
 
-    function showMessage(message) {
+    function showMessage(message, isSuccess) {
         var messageContainer = document.getElementById('messageContainer');
         var form = document.getElementById('paymentForm');
 
         messageContainer.innerText = message;
+
+        if (isSuccess) {
+            messageContainer.style.backgroundColor = '#007bff'; // Azul para aprovação
+        } else {
+            messageContainer.style.backgroundColor = '#dc3545'; // Vermelho para erro
+        }
+
         messageContainer.style.display = 'block';
         form.style.display = 'none';
 

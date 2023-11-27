@@ -59,7 +59,7 @@ app.get("/listarAeronaves", async(req,res)=>{
   }
 });
 
-app.get("/listarAssentos", async (req, res) => {
+app.get("/listarMapa", async (req, res) => {
   let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
 
   let connection;

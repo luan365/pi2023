@@ -3,4 +3,5 @@ export type Trecho = {
     origem?: string,
     destino?: string,
     aeronave?: string,
+    codigo?: number,
   }

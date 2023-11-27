@@ -186,7 +186,7 @@
                 <img
                     src="/front/src/assets/images/search_icon.png";
                     width="35px";
-                    onclick="buscarTrecho(${trecho.codigo});"
+                    onclick="buscarTrecho(${trecho.aeronave});"
                     style="margin-right: 25px;"
                 />
             `;
@@ -219,6 +219,7 @@
             function buscarTrecho(codigo)
             {
                 localStorage.setItem("codTrecho", codigo);
+                console.log(localStorage.getItem("codTrecho"));
                 window.location.pathname = "/front/src/user/voos.html";
             }
 

@@ -59,6 +59,45 @@ app.get("/listarAeronaves", async(req,res)=>{
   }
 });
 
+app.get("/listarAssentos", async (req, res) => {
+  let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
+
+  let connection;
+  try {
+    // Recuperando o número de identificação da requisição.
+    const numeroIdentificacao = parseInt(req.query.Numero_de_identificacao as string, 10);
+
+    connection = await oracledb.getConnection(oraConnAttribs);
+
+    // Consulta SQL corrigida e parâmetros de bind.
+    const resultadoConsulta = await connection.execute(
+      `SELECT assentos.*
+       FROM voos
+       JOIN assentos ON voos.fk_numero_de_identificacao = assentos.fk_aeronave
+       WHERE assentos.fk_aeronave = :1`,
+      [numeroIdentificacao]
+    );
+
+    cr.status = "SUCCESS";
+    cr.message = "Dados obtidos";
+    cr.payload = resultadoConsulta.rows;
+
+  } catch (e) {
+    if (e instanceof Error) {
+      cr.message = e.message;
+      console.log(e.message);
+    } else {
+      cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
+    }
+  } finally {
+    if (connection !== undefined) {
+      await connection.close();
+    }
+    res.send(cr);
+  }
+});
+
+
 app.get("/listarTrechos", async(req,res)=>{
 
   let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};

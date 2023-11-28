@@ -7,6 +7,8 @@ import cors from "cors";
 import { CustomResponse } from "./CustomResponse";
 import { Aeronave } from "./Aeronave";
 
+import { Passagem } from "./Passagem";
+import { rowsToPassagens } from "./ConversorPassagem";
 // criamos um arquivo para conter só a constante de conexão do oracle. com isso deixamos o código mais limpo por aqui
 import { oraConnAttribs } from "./OracleConnAtribs";
 
@@ -28,6 +30,7 @@ app.use(cors());
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
 // servicos de backend
+//------------------------------------------------------------------
 app.get("/listarAeronaves", async(req,res)=>{
 
   let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};
@@ -59,28 +62,35 @@ app.get("/listarAeronaves", async(req,res)=>{
   }
 });
 
-app.get("/listarMapa", async (req, res) => {
+//------------------------------------------------------------------
+app.post("/criarAssentos", async (req, res) => {
   let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
+
+  // Obtendo os parâmetros da requisição
+  const { fileiras, colunas, idVoo } = req.body;
 
   let connection;
   try {
-    // Recuperando o número de identificação da requisição.
-    const numeroIdentificacao = parseInt(req.query.Numero_de_identificacao as string, 10);
-
     connection = await oracledb.getConnection(oraConnAttribs);
 
-    // Consulta SQL corrigida e parâmetros de bind.
-    const resultadoConsulta = await connection.execute(
-      `SELECT assentos.*
-       FROM voos
-       JOIN assentos ON voos.fk_numero_de_identificacao = assentos.fk_aeronave
-       WHERE assentos.fk_aeronave = :1`,
-      [numeroIdentificacao]
-    );
+    // Preparando a chamada à função pCriarAssentos
+    const plsql = `
+      BEGIN
+        pCriarAssentos(:fileiras, :colunas, :idVoo);
+      END;
+    `;
+
+    const bindVars = {
+      fileiras,
+      colunas,
+      idVoo,
+    };
+
+    // Executando a chamada à função
+    await connection.execute(plsql, bindVars);
 
     cr.status = "SUCCESS";
-    cr.message = "Dados obtidos";
-    cr.payload = resultadoConsulta.rows;
+    cr.message = "Assentos criados com sucesso";
 
   } catch (e) {
     if (e instanceof Error) {
@@ -97,7 +107,7 @@ app.get("/listarMapa", async (req, res) => {
   }
 });
 
-
+//------------------------------------------------------------------
 app.get("/listarTrechos", async(req,res)=>{
 
   let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};
@@ -129,6 +139,7 @@ app.get("/listarTrechos", async(req,res)=>{
   }
 });
 
+//------------------------------------------------------------------
 app.put("/alterarAeronave", async (req, res) => {
   // Obtenha aeronave e código da requisição.
   const aero: Aeronave = req.body as Aeronave;
@@ -200,6 +211,7 @@ app.put("/alterarAeronave", async (req, res) => {
   }
 });
 
+//------------------------------------------------------------------
 app.put("/inserirAeronave", async(req,res)=>{
   
   // definindo um objeto de resposta.
@@ -262,6 +274,7 @@ app.put("/inserirAeronave", async(req,res)=>{
   }
 });
 
+//------------------------------------------------------------------
 app.delete("/excluirAeronave", async(req,res)=>{
   // excluindo a aeronave pelo código dela:
   const codigo = req.body.codigo as number;
@@ -321,6 +334,36 @@ app.delete("/excluirAeronave", async(req,res)=>{
   }
 });
 
+//------------------------------------------------------------------
+app.get("/listarPassagens", async(req, res) => {
+  let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
+  let connection;
+  try {
+    connection = await oracledb.getConnection(oraConnAttribs);
+
+    // atenção: mudamos a saída para que o oracle entregue um objeto puro em JS no rows.
+    // não mais um array dentro de array.
+    let resultadoConsulta = await connection.execute(`SELECT * FROM PASSAGENS`);
+
+    cr.status = "SUCCESS";
+    cr.message = "Dados obtidos";
+    // agora sempre vamos converter as linhas do oracle em resultados do nosso TIPO.
+    cr.payload = (rowsToPassagens(resultadoConsulta.rows));  // Adapte conforme necessário
+
+  } catch (e) {
+    if (e instanceof Error) {
+      cr.message = e.message;
+      console.log(e.message);
+    } else {
+      cr.message = "Erro ao conectar ao oracle. Sem detalhes";
+    }
+  } finally {
+    if (connection !== undefined) {
+      await connection.close();
+    }
+    res.send(cr);
+  }
+});
 app.listen(port,()=>{
   console.log("Servidor HTTP funcionando...");
 });

@@ -1,171 +1,142 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../assets/images/icone.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
     <title>Mapa de Assentos</title>
     <style>
-      /* Adicione seus estilos CSS aqui */
-      .fil {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 10px;
-        /* Reduzi o espaçamento entre as fileiras */
-      }
+        /* Adicione seus estilos CSS aqui */
+        .fil {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            /* Reduzi o espaçamento entre as fileiras */
+        }
 
-      .seat {
-        width: 30px;
-        /* Definição de largura fixa para os assentos */
-        height: 30px;
-        /* Definição de altura fixa para os assentos */
-        margin: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-image: url('../assets/images/assento.png');
-        background-size: cover;
-      }
+        .seat {
+            width: 30px;
+            /* Definição de largura fixa para os assentos */
+            height: 30px;
+            /* Definição de altura fixa para os assentos */
+            margin: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: url('../assets/images/assento.png');
+            background-size: cover;
+        }
 
-      .selected {
-        background-image: url('../assets/images/assentoSelecionado.png');
-      }
+        .selected {
+            background-image: url('../assets/images/assentoSelecionado.png');
+        }
 
-      /* Adicione espaçamento entre todas as colunas */
-      .fil> :nth-child(3),
-      .fil> :nth-child(6) {
-        margin-right: 40px;
-        /* Aumentei o espaçamento entre colunas */
-      }
+        /* Adicione espaçamento entre todas as colunas */
+        .fil> :nth-child(3),
+        .fil> :nth-child(6) {
+            margin-right: 40px;
+            /* Aumentei o espaçamento entre colunas */
+        }
+
+        /* Posicionamento dos botões */
+        .payment-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
     </style>
-  </head>
 
-  <body data-bs-theme="dark">
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      // Restante do seu código JS
+
+      function requestListaMapa(idVoo) {
+          const requestOptions = {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idVoo }),
+          };
+
+          return fetch(`http://localhost:3000/criarAssentos`, requestOptions)
+              .then(response => response.json());
+      }
+
+      function exibirMapa() {
+          const idVoo = localStorage.getItem("codTrecho");
+
+          if (idVoo) {
+              requestListaMapa(idVoo)
+                  .then(customResponse => {
+                      if (customResponse.status === 'SUCCESS') {
+                          document.getElementById('tblMapa').style.display = 'block';
+                          console.log('Deu certo a busca do mapa');
+                          console.log('Payload:' + JSON.stringify(customResponse.payload));
+                          preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)));
+                      } else {
+                          console.log(customResponse.message);
+                      }
+                  })
+                  .catch(e => {
+                      console.log('Não foi possível exibir.' + e);
+                  });
+          } else {
+              console.log('ID do Voo não encontrado no localStorage.');
+          }
+      }
+
+      // Chame a função exibirMapa para carregar o mapa quando a página for carregada
+      exibirMapa();
+  });
+</script>
+    
+</head>
+
+<body data-bs-theme="dark">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-e#panded="false">
-                Menu
-              </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Reservas</a></li>
-                <li><a class="dropdown-item" href="#">Check-in</a></li>
-              </ul>
-            </li>
-          </ul>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Reservas</a></li>
+                            <li><a class="dropdown-item" href="#">Check-in</a></li>
+                        </ul>
+                    </li>
+                </ul>
 
-          <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
-          <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
+                <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
+                <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
 
+            </div>
         </div>
-      </div>
     </nav>
-    <table id="tblMapa" cellspacing="5" cellpadding="10" class="table table-striped" style="margin-top: 100px;">
-      <thead class="fil">
-        <tr id="colunas"></tr>
-      </thead>
-      <tbody id="mapa-assentos"></tbody>
+    <table id="tblMapa" cellspacing="5" cellpadding="10" class="table table-striped"
+        style="margin-top: 100px;">
+        <thead class="fil">
+            <tr id="colunas"></tr>
+        </thead>
+        <tbody id="mapa-assentos"></tbody>
     </table>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const mapaContainer = document.getElementById("mapa-assentos");
-        const colunasContainer = document.getElementById("colunas");
-        const assentosPorFileira = 7;
-    
-        // Adiciona números acima da tabela
-        for (let i = 1; i <= assentosPorFileira; i++) {
-          const numero = document.createElement("th");
-          numero.textContent = i;
-          colunasContainer.appendChild(numero);
-        }
-    
-        function createSeat(row, col) {
-          const assento = document.createElement("td");
-          assento.className = "seat";
-          assento.dataset.row = row;
-          assento.dataset.col = col;
-          assento.addEventListener("click", function () {
-            // Toggle the "selected" class when clicked
-            this.classList.toggle("selected");
-          });
-    
-          return assento;
-        }
-    
-        function preencherTabela(assentos) {    
-          let assentosCriados = 0;
-          for (let row = 0; assentosCriados < assentos.length; row++) {
-            const fileira = document.createElement("tr");
-            fileira.className = "fil";
-    
-            // Adiciona letra da fileira à esquerda
-            const letraFileira = document.createElement("td");
-            letraFileira.textContent = getRowLabel(row);
-            fileira.appendChild(letraFileira);
-    
-            for (let col = 1; col <= assentosPorFileira; col++) {
-              const assento = createSeat(row, col);
-              fileira.appendChild(assento);
-    
-              assentosCriados++;
-              if (assentosCriados >= assentos.length) {
-                break;
-              }
-            }
-    
-            mapaContainer.appendChild(fileira);
-          }
-        }
-    
-        function requestListaMapa(codigoAeronave) {
-          const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          };
-    
-          return fetch(`http://localhost:3000/listarMapa`, requestOptions)
-            .then(response => response.json());
-        }
-    
-        function exibirMapa() {
-          const codigoAeronave = localStorage.getItem("codTrecho");
-    
-          if (codigoAeronave) {
-            requestListaMapa(codigoAeronave)
-              .then(customResponse => {
-                if (customResponse.status === 'SUCCESS') {
-                  document.getElementById('tblMapa').style.display = 'block';
-                  console.log('Deu certo a busca do mapa');
-                  console.log('Payload:' + JSON.stringify(customResponse.payload));
-                  preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)));
-                } else {
-                  console.log(customResponse.message);
-                }
-              })
-              .catch(e => {
-                console.log('Não foi possível exibir.' + e);
-              });
-          } else {
-            console.log('Código da aeronave não encontrado no localStorage.');
-          }
-        }
-    
-        // Chame a função exibirMapa para carregar o mapa quando a página for carregada
-        exibirMapa();
-      });
-    </script>
-  </body>
+    <div class="payment-buttons">
+        <a href="pagamentopix.html" class="btn btn-primary">Pagar com PIX</a>
+        <a href="pagamentocartao.html" class="btn btn-success" style="margin-left: 10px;">Pagar com Cartão</a>
+    </div>
+
+</body>
 
 </html>

@@ -16,6 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const oracledb_1 = __importDefault(require("oracledb"));
 const cors_1 = __importDefault(require("cors"));
+const ConversorPassagem_1 = require("./ConversorPassagem");
 // criamos um arquivo para conter só a constante de conexão do oracle. com isso deixamos o código mais limpo por aqui
 const OracleConnAtribs_1 = require("./OracleConnAtribs");
 // conversores para facilitar o trabalho de conversão dos resultados Oracle para vetores de tipos nossos.
@@ -32,6 +33,7 @@ app.use((0, cors_1.default)());
 // Acertando a saída dos registros oracle em array puro javascript.
 oracledb_1.default.outFormat = oracledb_1.default.OUT_FORMAT_OBJECT;
 // servicos de backend
+//------------------------------------------------------------------
 app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined, };
     let connection;
@@ -61,21 +63,29 @@ app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, func
         res.send(cr);
     }
 }));
-app.get("/listarMapa", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+//------------------------------------------------------------------
+app.post("/criarAssentos", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined };
+    // Obtendo os parâmetros da requisição
+    const { fileiras, colunas, idVoo } = req.body;
     let connection;
     try {
-        // Recuperando o número de identificação da requisição.
-        const numeroIdentificacao = parseInt(req.query.Numero_de_identificacao, 10);
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        // Consulta SQL corrigida e parâmetros de bind.
-        const resultadoConsulta = yield connection.execute(`SELECT assentos.*
-       FROM voos
-       JOIN assentos ON voos.fk_numero_de_identificacao = assentos.fk_aeronave
-       WHERE assentos.fk_aeronave = :1`, [numeroIdentificacao]);
+        // Preparando a chamada à função pCriarAssentos
+        const plsql = `
+      BEGIN
+        pCriarAssentos(:fileiras, :colunas, :idVoo);
+      END;
+    `;
+        const bindVars = {
+            fileiras,
+            colunas,
+            idVoo,
+        };
+        // Executando a chamada à função
+        yield connection.execute(plsql, bindVars);
         cr.status = "SUCCESS";
-        cr.message = "Dados obtidos";
-        cr.payload = resultadoConsulta.rows;
+        cr.message = "Assentos criados com sucesso";
     }
     catch (e) {
         if (e instanceof Error) {
@@ -93,6 +103,7 @@ app.get("/listarMapa", (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.send(cr);
     }
 }));
+//------------------------------------------------------------------
 app.get("/listarTrechos", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined, };
     let connection;
@@ -122,6 +133,7 @@ app.get("/listarTrechos", (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.send(cr);
     }
 }));
+//------------------------------------------------------------------
 app.put("/alterarAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // Obtenha aeronave e código da requisição.
     const aero = req.body;
@@ -187,6 +199,7 @@ app.put("/alterarAeronave", (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
 }));
+//------------------------------------------------------------------
 app.put("/inserirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // definindo um objeto de resposta.
     let cr = {
@@ -245,6 +258,7 @@ app.put("/inserirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
 }));
+//------------------------------------------------------------------
 app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // excluindo a aeronave pelo código dela:
     const codigo = req.body.codigo;
@@ -295,6 +309,36 @@ app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, f
         if (connection !== undefined)
             yield connection.close();
         // devolvendo a resposta da requisição.
+        res.send(cr);
+    }
+}));
+//------------------------------------------------------------------
+app.get("/listarPassagens", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let cr = { status: "ERROR", message: "", payload: undefined };
+    let connection;
+    try {
+        connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
+        // atenção: mudamos a saída para que o oracle entregue um objeto puro em JS no rows.
+        // não mais um array dentro de array.
+        let resultadoConsulta = yield connection.execute(`SELECT * FROM PASSAGENS`);
+        cr.status = "SUCCESS";
+        cr.message = "Dados obtidos";
+        // agora sempre vamos converter as linhas do oracle em resultados do nosso TIPO.
+        cr.payload = ((0, ConversorPassagem_1.rowsToPassagens)(resultadoConsulta.rows)); // Adapte conforme necessário
+    }
+    catch (e) {
+        if (e instanceof Error) {
+            cr.message = e.message;
+            console.log(e.message);
+        }
+        else {
+            cr.message = "Erro ao conectar ao oracle. Sem detalhes";
+        }
+    }
+    finally {
+        if (connection !== undefined) {
+            yield connection.close();
+        }
         res.send(cr);
     }
 }));

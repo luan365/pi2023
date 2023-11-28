@@ -61,21 +61,28 @@ app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, func
         res.send(cr);
     }
 }));
-app.get("/listarMapa", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/criarAssentos", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined };
+    // Obtendo os parâmetros da requisição
+    const { fileiras, colunas, idVoo } = req.body;
     let connection;
     try {
-        // Recuperando o número de identificação da requisição.
-        const numeroIdentificacao = parseInt(req.query.Numero_de_identificacao, 10);
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        // Consulta SQL corrigida e parâmetros de bind.
-        const resultadoConsulta = yield connection.execute(`SELECT assentos.*
-       FROM voos
-       JOIN assentos ON voos.fk_numero_de_identificacao = assentos.fk_aeronave
-       WHERE assentos.fk_aeronave = :1`, [numeroIdentificacao]);
+        // Preparando a chamada à função pCriarAssentos
+        const plsql = `
+      BEGIN
+        pCriarAssentos(:fileiras, :colunas, :idVoo);
+      END;
+    `;
+        const bindVars = {
+            fileiras,
+            colunas,
+            idVoo,
+        };
+        // Executando a chamada à função
+        yield connection.execute(plsql, bindVars);
         cr.status = "SUCCESS";
-        cr.message = "Dados obtidos";
-        cr.payload = resultadoConsulta.rows;
+        cr.message = "Assentos criados com sucesso";
     }
     catch (e) {
         if (e instanceof Error) {

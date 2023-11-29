@@ -142,5 +142,21 @@
             <a href="pagamentopix.html" class="btn btn-primary">Pagar com PIX</a>
             <a href="pagamentocartao.html" class="btn btn-success" style="margin-left: 10px;">Pagar com Cartão</a>
         </div>
+
+        <script>
+             // Adiciona um ouvinte de eventos ao mapa-container
+        document.getElementById("mapa-assentos").addEventListener("click", function (event) {
+            // Verifica se o clique foi em um assento
+            if (event.target.classList.contains("seat")) {
+                // Remove a classe "selected" de todos os assentos
+                document.querySelectorAll(".seat").forEach(function (seat) {
+                    seat.classList.remove("selected");
+                });
+
+                // Adiciona a classe "selected" ao assento clicado
+                event.target.classList.add("selected");
+            }
+        });
+        </script>
     </body> 
 </html>

@@ -1,0 +1,42 @@
+.fil{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    /* Reduzi o espaçamento entre as fileiras */
+}
+
+.fill th{
+    background-color: aliceblue;
+}
+
+.seat {
+    width: 30px;
+    /* Definição de largura fixa para os assentos */
+    height: 30px;
+    /* Definição de altura fixa para os assentos */
+    margin: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('../images/assento.png');
+    background-size: cover;
+}
+
+.selected {
+    background-image: url('../images/assentoSelecionado.png');
+}
+
+/* Adicione espaçamento entre todas as colunas */
+.fil> :nth-child(3),
+.fil> :nth-child(6) {
+    margin-right: 40px;
+    /* Aumentei o espaçamento entre colunas */
+}
+
+/* Posicionamento dos botões */
+.payment-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}

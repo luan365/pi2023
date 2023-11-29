@@ -52,70 +52,77 @@
     </style>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            function requestListaMapa(idAeronave) {
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                };
-                return fetch(`http://localhost:3000/listarAssentos/${idAeronave}`, requestOptions)
-                    .then(T => T.json())
-            }
 
-          
-            function exibirMapa() {
-                const idAeronave = localStorage.getItem("codAeronave");
-                console.log(idAeronave);
+        function requestListaMapa(idAeronave) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            };
+            return fetch(`http://localhost:3000/listarAssentos/${idAeronave}`, requestOptions)
 
-                if (idAeronave) {
-                    requestListaMapa(idAeronave)
-                        .then(customResponse => {
-                            if (customResponse.status === 'SUCCESS') {
-                                document.getElementById('tblMapa').style.display = 'block';
-                                console.log('Deu certo a busca do mapa');
-                                console.log('Payload:' + JSON.stringify(customResponse.payload));
-                                preencherTabela(JSON.parse(JSON.stringify(customResponse.payload)));
-                            } else {
-                                console.log(customResponse.message);
-                            }
-                        })
-                        .catch(e => {
-                            console.log('Não foi possível exibir.' + e);
-                        });
-                } else {
-                    console.log('ID do Voo não encontrado no localStorage.');
-                }
-            }
+                .then(T => T.json())
+        }
 
-            function preencherTabela(assentos) {
-                console.log("ASSENTOS: " + assentos);
-                let assentosCriados = 0;
-                for (let row = 0; assentosCriados < assentos.length; row++) {
-                    const fileira = document.createElement("tr");
-                    fileira.className = "fil";
+        function preencherTabela(assentos) {
+            console.log("ASSENTOS: " + assentos);
+            let assentosCriados = 0;
+            for (let row = 0; assentosCriados < assentos.length; row++) {
+                const fileira = document.createElement("tr");
+                fileira.className = "fil";
 
-                    // Adiciona letra da fileira à esquerda
-                    const letraFileira = document.createElement("td");
-                    letraFileira.textContent = getRowLabel(row);
-                    fileira.appendChild(letraFileira);
+                // Adiciona letra da fileira à esquerda
+                const letraFileira = document.createElement("td");
+                letraFileira.textContent = getRowLabel(row);
+                fileira.appendChild(letraFileira);
 
-                    for (let col = 1; col <= assentosPorFileira; col++) {
-                        const assento = createSeat(row, col);
-                        fileira.appendChild(assento);
+                for (let col = 1; col <= assentosPorFileira; col++) {
+                    const assento = createSeat(row, col);
+                    fileira.appendChild(assento);
 
-                        assentosCriados++;
-                        if (assentosCriados >= assentos.length) {
-                            break;
-                        }
+                    assentosCriados++;
+                    if (assentosCriados >= assentos.length) {
+                        break;
                     }
-
-                    mapaContainer.appendChild(fileira);
                 }
-            }
 
-            // Chame a função exibirMapa para carregar o mapa quando a página for carregada
-            exibirMapa();
-        });
+                mapaContainer.appendChild(fileira);
+            }
+        }
+
+        function exibirMapa() {
+            const idAeronave = localStorage.getItem("codAeronave");
+            console.log(idAeronave);
+
+            if (idAeronave) {
+                requestListaMapa(idAeronave)
+                    .then(customResponse => {
+                        console.log('Resposta do servidor:', customResponse);
+
+                        if (customResponse && customResponse.status === 'SUCCESS') {
+                            document.getElementById('tblMapa').style.display = 'block';
+                            console.log('Deu certo a busca do mapa');
+
+                            if (customResponse.payload) {
+                                console.log('Payload:', JSON.stringify(customResponse.payload));
+                                preencherTabela(customResponse.payload);
+                            } else {
+                                console.log('A resposta do servidor não contém payload.');
+                            }
+                        } else {
+                            console.log('Erro na resposta do servidor:', customResponse.message || 'Sem mensagem de erro.');
+                        }
+                    })
+                    .catch(e => {
+                        console.log('Erro na requisição ao servidor:', e);
+                    });
+
+            } else {
+                console.log('ID do Voo não encontrado no localStorage.');
+            }
+        }
+
+        // Chame a função exibirMapa para carregar o mapa quando a página for carregada
+        exibirMapa();
     </script>
 
 </head>

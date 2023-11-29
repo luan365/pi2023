@@ -152,10 +152,10 @@
         });
     }
 
-    function excluirAeronave(c) {
-      console.log('Clicou no excluir aeronave: ' + c);
+    function excluirAeronave(codigo) {
+      console.log('Clicou no excluir aeronave: ' + codigo);
       // vamos fazer a exclusão
-      requestExcluirAeronave({ codigo: c })
+      requestExcluirAeronave({ codigo: codigo })
         .then(customResponse => {
           // obteve resposta na exclusão, chamamos novamente o carregar.
           if (customResponse.status === "SUCCESS") {

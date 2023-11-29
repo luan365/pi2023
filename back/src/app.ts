@@ -6,14 +6,16 @@ import cors from "cors";
 // aqui vamos importar nossos tipos para organizar melhor (estao em arquivos .ts separados)
 import { CustomResponse } from "./CustomResponse";
 import { Aeronave } from "./Aeronave";
-
 import { Passagem } from "./Passagem";
-import { rowsToPassagens } from "./ConversorPassagem";
+import { Assento } from "./Assento";
+
 // criamos um arquivo para conter só a constante de conexão do oracle. com isso deixamos o código mais limpo por aqui
 import { oraConnAttribs } from "./OracleConnAtribs";
 
 // conversores para facilitar o trabalho de conversão dos resultados Oracle para vetores de tipos nossos.
 import { rowsToAeronaves } from "./Conversores";
+import { rowsToPassagens } from "./ConversorPassagem";
+import { rowsToAssentos } from "./ConversorAssento";
 import { rowsToTrechos } from "./ConversorTrechos";
 
 // validadores para facilitar o trabalho de validação.
@@ -31,7 +33,7 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
 // servicos de backend
 //------------------------------------------------------------------
-app.get("/listarAeronaves", async(req,res)=>{
+app.get("/listarAeronaves", async(req,res)=>{''
 
   let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};
   let connection;
@@ -106,7 +108,7 @@ app.post("/criarAssentos", async (req, res) => {
     res.send(cr);
   }
 });
-
+ 
 //------------------------------------------------------------------
 app.get("/listarAssentos/:codigoAeronave", async (req, res) => {
   let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
@@ -114,17 +116,16 @@ app.get("/listarAssentos/:codigoAeronave", async (req, res) => {
   try {
     connection = await oracledb.getConnection(oraConnAttribs);
 
-    const codigoAeronave = req.query.codigo;
+    let codigo = req.params.codigoAeronave;
 
     // Obter informações sobre os assentos da aeronave
-    const resultadoConsulta = `SELECT * FROM ASSENTOS WHERE AERONAVE = :1 ORDER BY NUMERO`;
-    const dado = [codigoAeronave]
-    console.log(dado);
-    await connection.execute(resultadoConsulta, dado);
-
+    const dado = [codigo];
+    let resultadoConsulta = await connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = ${dado}`);
+    //cr.payload = resultadoConsulta.rows;
     cr.status = "SUCCESS";
     cr.message = "Dados obtidos";
-  
+    cr.payload = rowsToAssentos(resultadoConsulta.rows);
+
   } catch (e) {
     if (e instanceof Error) {
       cr.message = e.message;

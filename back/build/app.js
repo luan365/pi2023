@@ -16,11 +16,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const oracledb_1 = __importDefault(require("oracledb"));
 const cors_1 = __importDefault(require("cors"));
-const ConversorPassagem_1 = require("./ConversorPassagem");
 // criamos um arquivo para conter só a constante de conexão do oracle. com isso deixamos o código mais limpo por aqui
 const OracleConnAtribs_1 = require("./OracleConnAtribs");
 // conversores para facilitar o trabalho de conversão dos resultados Oracle para vetores de tipos nossos.
 const Conversores_1 = require("./Conversores");
+const ConversorPassagem_1 = require("./ConversorPassagem");
+const ConversorAssento_1 = require("./ConversorAssento");
 const ConversorTrechos_1 = require("./ConversorTrechos");
 // validadores para facilitar o trabalho de validação.
 const Validadores_1 = require("./Validadores");
@@ -35,6 +36,7 @@ oracledb_1.default.outFormat = oracledb_1.default.OUT_FORMAT_OBJECT;
 // servicos de backend
 //------------------------------------------------------------------
 app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    '';
     let cr = { status: "ERROR", message: "", payload: undefined, };
     let connection;
     try {
@@ -109,14 +111,14 @@ app.get("/listarAssentos/:codigoAeronave", (req, res) => __awaiter(void 0, void 
     let connection;
     try {
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        const codigoAeronave = req.query.codigo;
+        let codigo = req.params.codigoAeronave;
         // Obter informações sobre os assentos da aeronave
-        const resultadoConsulta = `SELECT * FROM ASSENTOS WHERE AERONAVE = :1 ORDER BY NUMERO`;
-        const dado = [codigoAeronave];
-        console.log(dado);
-        yield connection.execute(resultadoConsulta, dado);
+        const dado = [codigo];
+        let resultadoConsulta = yield connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = ${dado}`);
+        //cr.payload = resultadoConsulta.rows;
         cr.status = "SUCCESS";
         cr.message = "Dados obtidos";
+        cr.payload = (0, ConversorAssento_1.rowsToAssentos)(resultadoConsulta.rows);
     }
     catch (e) {
         if (e instanceof Error) {

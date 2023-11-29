@@ -104,6 +104,37 @@ app.post("/criarAssentos", (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 }));
 //------------------------------------------------------------------
+app.get("/listarAssentos/:codigoAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let cr = { status: "ERROR", message: "", payload: undefined };
+    let connection;
+    try {
+        connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
+        const codigoAeronave = req.query.codigo;
+        // Obter informações sobre os assentos da aeronave
+        const resultadoConsulta = `SELECT * FROM ASSENTOS WHERE AERONAVE = :1 ORDER BY NUMERO`;
+        const dado = [codigoAeronave];
+        console.log(dado);
+        yield connection.execute(resultadoConsulta, dado);
+        cr.status = "SUCCESS";
+        cr.message = "Dados obtidos";
+    }
+    catch (e) {
+        if (e instanceof Error) {
+            cr.message = e.message;
+            console.log(e.message);
+        }
+        else {
+            cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
+        }
+    }
+    finally {
+        if (connection !== undefined) {
+            yield connection.close();
+        }
+        res.send(cr);
+    }
+}));
+//------------------------------------------------------------------
 app.get("/listarTrechos", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined, };
     let connection;

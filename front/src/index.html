@@ -175,7 +175,7 @@
                     const trecho = trechos[i];
                     console.log('Dados do trecho: ' + trecho);
                     const row = document.createElement('tr');
-
+                        
                     row.innerHTML =
                         `
                 <td class="leftText">${trecho.nome}</td>
@@ -218,8 +218,8 @@
             
             function buscarTrecho(codigo)
             {
-                localStorage.setItem("codTrecho", codigo);
-                console.log(localStorage.getItem("codTrecho"));
+                localStorage.setItem("codAeronave", codigo);
+                console.log(localStorage.getItem("codAeronave"));
                 window.location.pathname = "/front/src/user/voos.html";
             }
 

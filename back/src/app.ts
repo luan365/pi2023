@@ -91,7 +91,40 @@ app.post("/criarAssentos", async (req, res) => {
 
     cr.status = "SUCCESS";
     cr.message = "Assentos criados com sucesso";
+    
+  } catch (e) {
+    if (e instanceof Error) {
+      cr.message = e.message;
+      console.log(e.message);
+    } else {
+      cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
+    }
+  } finally {
+    if (connection !== undefined) {
+      await connection.close();
+    }
+    res.send(cr);
+  }
+});
 
+//------------------------------------------------------------------
+app.get("/listarAssentos/:codigoAeronave", async (req, res) => {
+  let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
+  let connection;
+  try {
+    connection = await oracledb.getConnection(oraConnAttribs);
+
+    const codigoAeronave = req.query.codigo;
+
+    // Obter informações sobre os assentos da aeronave
+    const resultadoConsulta = `SELECT * FROM ASSENTOS WHERE AERONAVE = :1 ORDER BY NUMERO`;
+    const dado = [codigoAeronave]
+    console.log(dado);
+    await connection.execute(resultadoConsulta, dado);
+
+    cr.status = "SUCCESS";
+    cr.message = "Dados obtidos";
+  
   } catch (e) {
     if (e instanceof Error) {
       cr.message = e.message;
@@ -364,6 +397,7 @@ app.get("/listarPassagens", async(req, res) => {
     res.send(cr);
   }
 });
+
 app.listen(port,()=>{
   console.log("Servidor HTTP funcionando...");
 });

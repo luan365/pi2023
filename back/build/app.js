@@ -114,7 +114,7 @@ app.get("/listarAssentos/:codigoAeronave", (req, res) => __awaiter(void 0, void 
         let codigo = req.params.codigoAeronave;
         // Obter informações sobre os assentos da aeronave
         const dado = [codigo];
-        let resultadoConsulta = yield connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = ${dado}`);
+        let resultadoConsulta = yield connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = :1`, dado);
         //cr.payload = resultadoConsulta.rows;
         cr.status = "SUCCESS";
         cr.message = "Dados obtidos";
@@ -306,10 +306,9 @@ app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, f
     let connection;
     try {
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        const cmdDeleteAero = `DELETE FROM AERONAVES WHERE codigo = :1`;
-        const dados = [codigo];
-        let resDelete = yield connection.execute(cmdDeleteAero, dados);
-        let result = yield connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`, [codigo]);
+        const dado = [codigo];
+        const cmdDeleteAero = yield connection.execute(`DELETE FROM AERONAVES WHERE codigo = ${dado}`);
+        let result = yield connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`);
         if (+result > 0) {
             cr.message = "Aeronave não excluída. Aeronave está associada a um voo";
             console.log(cr.message);
@@ -319,7 +318,7 @@ app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, f
             yield connection.commit();
             // obter a informação de quantas linhas foram inseridas. 
             // neste caso precisa ser exatamente 1
-            const rowsDeleted = resDelete.rowsAffected;
+            const rowsDeleted = cmdDeleteAero.rowsAffected;
             if (rowsDeleted !== undefined && rowsDeleted === 1) {
                 cr.status = "SUCCESS";
                 cr.message = "Aeronave excluída.";

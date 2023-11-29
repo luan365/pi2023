@@ -63,9 +63,25 @@
                 .then(T => T.json())
         }
 
+        // Função para obter a letra da fileira com base no número da fileira
+        function getRowLabel(row) {
+            // Você pode ajustar a lógica conforme necessário
+            return String.fromCharCode(65 + row);
+        }
+
+        // Função para criar um assento
+        function createSeat(row, col) {
+            const assento = document.createElement("td");
+            assento.textContent = getRowLabel(row) + col;
+            assento.className = "seat";
+            return assento;
+        }
+        
         function preencherTabela(assentos) {
-            console.log("ASSENTOS: " + assentos);
+            let assentosPorFileira = 10; 
+            const mapaContainer = document.getElementById("mapa-assentos");
             let assentosCriados = 0;
+
             for (let row = 0; assentosCriados < assentos.length; row++) {
                 const fileira = document.createElement("tr");
                 fileira.className = "fil";
@@ -123,6 +139,7 @@
 
         // Chame a função exibirMapa para carregar o mapa quando a página for carregada
         exibirMapa();
+
     </script>
 
 </head>

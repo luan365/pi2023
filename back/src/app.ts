@@ -120,7 +120,8 @@ app.get("/listarAssentos/:codigoAeronave", async (req, res) => {
 
     // Obter informações sobre os assentos da aeronave
     const dado = [codigo];
-    let resultadoConsulta = await connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = ${dado}`);
+    let resultadoConsulta = await connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = :1`, dado);
+
     //cr.payload = resultadoConsulta.rows;
     cr.status = "SUCCESS";
     cr.message = "Dados obtidos";
@@ -326,11 +327,10 @@ app.delete("/excluirAeronave", async(req,res)=>{
   let connection;
   try{
     connection = await oracledb.getConnection(oraConnAttribs);
-    const cmdDeleteAero = `DELETE FROM AERONAVES WHERE codigo = :1`;
-    const dados = [codigo];
+    const dado = [codigo];
+    const cmdDeleteAero = await connection.execute(`DELETE FROM AERONAVES WHERE codigo = ${dado}`);
 
-    let resDelete = await connection.execute(cmdDeleteAero, dados);
-    let result = await connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`, [codigo]); 
+    let result = await connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`); 
     
     if(+result > 0) {
       cr.message = "Aeronave não excluída. Aeronave está associada a um voo";
@@ -343,7 +343,7 @@ app.delete("/excluirAeronave", async(req,res)=>{
       
       // obter a informação de quantas linhas foram inseridas. 
       // neste caso precisa ser exatamente 1
-      const rowsDeleted = resDelete.rowsAffected;
+      const rowsDeleted = cmdDeleteAero.rowsAffected;
       if(rowsDeleted !== undefined && rowsDeleted === 1) {
         cr.status = "SUCCESS"; 
         cr.message = "Aeronave excluída.";

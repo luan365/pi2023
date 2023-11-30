@@ -1,14 +1,16 @@
-<!DOCTYPE html> <html lang="pt-br"> 
-    <head> 
-        <meta charset="utf-8"> 
-        <meta name="viewport" content="width=device-width, initial-scale=1"> 
-        <link rel="icon" href="../assets/images/icone.png"> 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-        <link href="../assets/css/voos.css" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="../assets/images/icone.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="../assets/css/voos.css" rel="stylesheet">
     <title>Mapa de Assentos</title>
 
     <script>
-    
         function requestListaMapa(idAeronave) {
             const requestOptions = {
                 method: 'GET',
@@ -17,25 +19,25 @@
             return fetch(`http://localhost:3000/listarAssentos/${idAeronave}`, requestOptions)
                 .then(T => T.json())
         }
-    
+
         // Função para obter a letra da fileira com base no número da fileira
         function getRowLabel(row) {
             // Você pode ajustar a lógica conforme necessário
             return String.fromCharCode(65 + row);
         }
-    
+
         // Função para criar um assento
         function createSeat() {
             const assento = document.createElement("td");
             assento.className = "seat";
             return assento;
         }
-    
+
         function preencherTabela(assentos) {
             let assentosPorFileira = 10;
             const mapaContainer = document.getElementById("mapa-assentos");
             let assentosCriados = 0;
-    
+
             // Adiciona uma linha para os números acima da tabela
             const numerosFileira = document.getElementById("colunas");
             numerosFileira.className = "fil";
@@ -46,43 +48,46 @@
                 numerosFileira.appendChild(numeroAssento);
             }
             mapaContainer.appendChild(numerosFileira);
-    
+
             for (let row = 0; assentosCriados < assentos.length; row++) {
                 const fileira = document.createElement("tr");
                 fileira.className = "fil";
-    
+
                 // Adiciona letra da fileira à esquerda
                 const letraFileira = document.createElement("td");
                 letraFileira.textContent = getRowLabel(row);
                 fileira.appendChild(letraFileira);
-    
+
                 for (let col = 1; col <= assentosPorFileira; col++) {
                     const assento = createSeat();
                     fileira.appendChild(assento);
-    
+
                     assentosCriados++;
                     if (assentosCriados >= assentos.length) {
                         break;
                     }
                 }
-    
+
                 mapaContainer.appendChild(fileira);
             }
         }
-    
+
         function exibirMapa() {
-            const idAeronave = localStorage.getItem("codAeronave");
+            let idAeronave = localStorage.getItem("codAeronave");
             console.log(idAeronave);
-    
+
+            localStorage.setItem("Preco", 0);
+            console.log("preco: " + localStorage.getItem("Preco"));
+
             if (idAeronave) {
                 requestListaMapa(idAeronave)
                     .then(customResponse => {
                         console.log('Resposta do servidor:', customResponse);
-    
+
                         if (customResponse && customResponse.status === 'SUCCESS') {
                             document.getElementById('tblMapa').style.display = 'block';
                             console.log('Deu certo a busca do mapa');
-    
+
                             if (customResponse.payload) {
                                 console.log('Payload:', JSON.stringify(customResponse.payload));
                                 preencherTabela(customResponse.payload);
@@ -96,76 +101,133 @@
                     .catch(e => {
                         console.log('Erro na requisição ao servidor:', e);
                     });
-    
+
             } else {
                 console.log('ID do Voo não encontrado no localStorage.');
             }
         }
-    
+
         // Chame a função exibirMapa para carregar o mapa quando a página for carregada
         exibirMapa();
-    
-    </script>
-    </head> 
-    <body data-bs-theme="dark"> 
-        <nav class="navbar navbar-expand-lg bg-body-tertiary"> 
-            <div class="container-fluid"> 
-                <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a> 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"> 
-                    <span class="navbar-toggler-icon"></span> 
-                </button> 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent"> 
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0"> 
-                        <li class="nav-item dropdown"> 
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Menu </a> 
-                            <ul class="dropdown-menu"> 
-                                <li>
-                                    <a class="dropdown-item" href="#">Reservas</a></li> <li><a class="dropdown-item" href="#">Check-in</a>
-                                </li> 
-                            </ul> 
-                        </li> 
-                    </ul>
-                    <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
-                    <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
-                </div>
-            </div>
-        </nav>
-        <table id="tblMapa" cellspacing="5" cellpadding="10" class="" style="margin-top: 100px;">
-            <thead class="fil">
-                <tr id="colunas">
-                  
-            </thead>
-            <tbody id="mapa-assentos"></tbody>
-        </table>
-        
-        <div class="price"></div>
-        <div class="payment-buttons">
-            <a href="pagamentopix.html" class="btn btn-primary">Pagar com PIX</a>
-            <a href="pagamentocartao.html" class="btn btn-success" style="margin-left: 10px;">Pagar com Cartão</a>
-        </div>
 
-        <script>
-            function calcularPreco() {
+    </script>
+</head>
+
+<body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/front/src/Index.html"> AirPuc </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false"> Menu </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#">Reservas</a>
+                            </li>
+                            <li><a class="dropdown-item" href="#">Check-in</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <a type="button" class="btn" href="/front/src/login.html" role="button">Conectar</a>
+                <a type="button" class="btn btn-outline-secondary" href="#" role="button">Cadastrar</a>
+            </div>
+        </div>
+    </nav>
+    <table id="tblMapa" cellspacing="5" cellpadding="10" class="" style="margin-top: 100px;">
+        <thead class="fil">
+            <tr id="colunas">
+
+        </thead>
+        <tbody id="mapa-assentos"></tbody>
+    </table>
+
+    <div class="price"></div>
+    <div class="payment-buttons">
+        <button id="pix" class="btn btn-primary">Pagar com PIX(10% de desconto)</button>
+        <button id="cartao" class="btn btn-success" style="margin-left: 10px;">Pagar com Cartão</button>
+    </div>
+
+    <script>
+        function calcularPreco() {
             const assentosSelecionados = document.querySelectorAll(".selected");
             const precoPorAssento = 700;
             const precoTotal = assentosSelecionados.length * precoPorAssento;
+
+            // Obtém os números dos assentos selecionados
+            const assentosNumeros = Array.from(assentosSelecionados).map(assento => assento.textContent);
+
+            localStorage.setItem("Preco", precoTotal);
+
             return precoTotal;
         }
 
+
         // Adiciona um ouvinte de eventos ao mapa-container
         document.getElementById("mapa-assentos").addEventListener("click", function (event) {
-            // Verifica se o clique foi em um assento
-            if (event.target.classList.contains("seat")) {
-                // Alterna a classe "selected" no assento clicado
-                event.target.classList.toggle("selected");
+        // Verifica se o clique foi em um assento
+        if (event.target.classList.contains("seat")) {
+            // Alterna a classe "selected" no assento clicado
+            event.target.classList.toggle("selected");
 
-                // Calcula o preço e exibe na div "price"
-                const preco = calcularPreco();
-                localStorage.setItem("Preco", preco);
-                document.querySelector(".price").textContent = `Total: R$ ${preco.toFixed(2)}`;
+            // Calcula o preço e exibe na div "price"
+            const preco = calcularPreco();
+
+            // Obtém os números dos assentos selecionados
+            const assentosSelecionados = Array.from(document.querySelectorAll(".selected")).map(assento => assento.textContent);
+            
+            // Armazena os assentos selecionados no localStorage
+            localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
+
+            localStorage.setItem("Preco", preco);
+            document.querySelector(".price").textContent = `Total: R$ ${preco.toFixed(2)}`;
+
+            // Imprime no console as informações do assento selecionado
+            console.log("Assento Selecionado:", {
+                assentosSelecionados,
+                preco,
+            });
+        }
+    });
+
+        // Adiciona um ouvinte de eventos ao botão de compra (PIX)
+        document.getElementById("pix").addEventListener("click", function (event) {
+            const preco = parseInt(localStorage.getItem("Preco"), 10);
+            const assentosSelecionados = JSON.parse(localStorage.getItem("AssentosSelecionados"));
+
+            if (preco !== 0) {
+                // Salva os assentos e preço antes de redirecionar
+                localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
+                localStorage.setItem("Pagamento", "PIX");
+                window.location.pathname = "front/src/user/pagamentos/pagamentoPix.html";
+            } else {
+                alert("Selecione pelo menos um assento para comprar.");
             }
         });
 
-        </script>
-    </body> 
+        // Adiciona um ouvinte de eventos ao botão de compra (Cartão)
+        document.getElementById("cartao").addEventListener("click", function (event) {
+            const preco = parseInt(localStorage.getItem("Preco"), 10);
+            const assentosSelecionados = JSON.parse(localStorage.getItem("AssentosSelecionados"));
+
+            if (preco !== 0) {
+                // Salva os assentos e preço antes de redirecionar
+                localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
+                localStorage.setItem("Pagamento", "Cartão");
+                window.location.pathname = "front/src/user/pagamentos/pagamentoCartao.html";
+            } else {
+                alert("Selecione pelo menos um assento para comprar.");
+            }
+        });
+
+    </script>
+</body>
+
 </html>

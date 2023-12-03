@@ -32,11 +32,11 @@
             assento.className = "seat";
             return assento;
         }
-
         function preencherTabela(assentos) {
             let assentosPorFileira = 10;
             const mapaContainer = document.getElementById("mapa-assentos");
             let assentosCriados = 0;
+            let fa = 'AA'
 
             // Adiciona uma linha para os números acima da tabela
             const numerosFileira = document.getElementById("colunas");
@@ -54,24 +54,43 @@
                 fileira.className = "fil";
 
                 // Adiciona letra da fileira à esquerda
-                const letraFileira = document.createElement("td");
-                letraFileira.textContent = getRowLabel(row);
-                fileira.appendChild(letraFileira);
+                for (let row = 0; assentosCriados < assentos.length; row++) {
+                    const fileira = document.createElement("tr");
+                    fileira.className = "fil";
 
-                for (let col = 1; col <= assentosPorFileira; col++) {
-                    const assento = createSeat();
-                    fileira.appendChild(assento);
+                    // Adiciona letra da fileira à esquerda
+                    const letraFileira = document.createElement("td");
+                    letraFileira.textContent = fa;
+                    fileira.appendChild(letraFileira);
 
-                    assentosCriados++;
-                    if (assentosCriados >= assentos.length) {
-                        break;
+                    for (let col = 1; col <= assentosPorFileira; col++) {
+                        const assento = createSeat();
+                        fileira.appendChild(assento);
+
+                        assentosCriados++;
+                        if (assentosCriados >= assentos.length) {
+                            break;
+                        }
                     }
-                }
+                    mapaContainer.appendChild(fileira);
 
-                mapaContainer.appendChild(fileira);
+                    // Obtém a próxima etiqueta da linha
+                    fa = getNextRowLabel(fa);
+                }
             }
         }
 
+        // Função para obter a próxima etiqueta da linha
+        function getNextRowLabel(fileiraAtual) {
+            const primeiraLetra = fileiraAtual[0];
+            const segundaLetra = fileiraAtual[1];
+
+            if (segundaLetra === 'Z') {
+                return String.fromCharCode(primeiraLetra.charCodeAt(0) + 1) + 'A';
+            } else {
+                return primeiraLetra + String.fromCharCode(segundaLetra.charCodeAt(0) + 1);
+            }
+        }
         function exibirMapa() {
             let idAeronave = localStorage.getItem("codAeronave");
             console.log(idAeronave);
@@ -141,18 +160,19 @@
             </div>
         </div>
     </nav>
-    <table id="tblMapa" cellspacing="5" cellpadding="10" class="" style="margin-top: 100px;">
-        <thead class="fil">
-            <tr id="colunas">
-
-        </thead>
-        <tbody id="mapa-assentos"></tbody>
-    </table>
+    <div class="mapa-assentos-container">
+        <table id="tblMapa" cellspacing="5" cellpadding="10">
+            <thead class="fil">
+                <tr id="colunas">        
+            </thead>
+                <tbody class="mapa-assentos" id="mapa-assentos"></tbody>
+        </table>
+    </div>
 
     <div class="price"></div>
     <div class="payment-buttons">
-        <button id="pix" class="btn btn-primary">Pagar com PIX(10% de desconto)</button>
-        <button id="cartao" class="btn btn-success" style="margin-left: 10px;">Pagar com Cartão</button>
+        <button id="pix" class="btn btn-primary" style="width: 300px;">Pagar com PIX (10% de desconto)</button>
+        <button id="cartao" class="btn btn-success" style="width: 250px;">Pagar com Cartão</button>
     </div>
 
     <script>
@@ -172,30 +192,30 @@
 
         // Adiciona um ouvinte de eventos ao mapa-container
         document.getElementById("mapa-assentos").addEventListener("click", function (event) {
-        // Verifica se o clique foi em um assento
-        if (event.target.classList.contains("seat")) {
-            // Alterna a classe "selected" no assento clicado
-            event.target.classList.toggle("selected");
+            // Verifica se o clique foi em um assento
+            if (event.target.classList.contains("seat")) {
+                // Alterna a classe "selected" no assento clicado
+                event.target.classList.toggle("selected");
 
-            // Calcula o preço e exibe na div "price"
-            const preco = calcularPreco();
+                // Calcula o preço e exibe na div "price"
+                const preco = calcularPreco();
 
-            // Obtém os números dos assentos selecionados
-            const assentosSelecionados = Array.from(document.querySelectorAll(".selected")).map(assento => assento.textContent);
-            
-            // Armazena os assentos selecionados no localStorage
-            localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
+                // Obtém os números dos assentos selecionados
+                const assentosSelecionados = Array.from(document.querySelectorAll(".selected")).map(assento => assento.textContent);
 
-            localStorage.setItem("Preco", preco);
-            document.querySelector(".price").textContent = `Total: R$ ${preco.toFixed(2)}`;
+                // Armazena os assentos selecionados no localStorage
+                localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
 
-            // Imprime no console as informações do assento selecionado
-            console.log("Assento Selecionado:", {
-                assentosSelecionados,
-                preco,
-            });
-        }
-    });
+                localStorage.setItem("Preco", preco);
+                document.querySelector(".price").textContent = `Total: R$ ${preco.toFixed(2)}`;
+
+                // Imprime no console as informações do assento selecionado
+                console.log("Assento Selecionado:", {
+                    assentosSelecionados,
+                    preco,
+                });
+            }
+        });
 
         // Adiciona um ouvinte de eventos ao botão de compra (PIX)
         document.getElementById("pix").addEventListener("click", function (event) {

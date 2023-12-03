@@ -63,51 +63,6 @@ app.get("/listarAeronaves", async(req,res)=>{''
     res.send(cr);  
   }
 });
-
-//------------------------------------------------------------------
-app.post("/criarAssentos", async (req, res) => {
-  let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
-
-  // Obtendo os parâmetros da requisição
-  const { fileiras, colunas, idVoo } = req.body;
-
-  let connection;
-  try {
-    connection = await oracledb.getConnection(oraConnAttribs);
-
-    // Preparando a chamada à função pCriarAssentos
-    const plsql = `
-      BEGIN
-        pCriarAssentos(:fileiras, :colunas, :idVoo);
-      END;
-    `;
-
-    const bindVars = {
-      fileiras,
-      colunas,
-      idVoo,
-    };
-
-    // Executando a chamada à função
-    await connection.execute(plsql, bindVars);
-
-    cr.status = "SUCCESS";
-    cr.message = "Assentos criados com sucesso";
-    
-  } catch (e) {
-    if (e instanceof Error) {
-      cr.message = e.message;
-      console.log(e.message);
-    } else {
-      cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
-    }
-  } finally {
-    if (connection !== undefined) {
-      await connection.close();
-    }
-    res.send(cr);
-  }
-});
  
 //------------------------------------------------------------------
 app.get("/listarAssentos/:codigoAeronave", async (req, res) => {

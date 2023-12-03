@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link href="../../assets/css/cartao.css" rel="stylesheet">
     <link rel="icon" href="../assets/images/icone.png">
     <title>Tela de Pagamento</title>
@@ -12,161 +14,165 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
+
 <body>
 
-<!-- Formulário de Pagamento -->
-<form id="paymentForm">
-    <label for="cardNumber">Número do Cartão:</label>
-    <input type="text" id="cardNumber" placeholder="**** **** **** ****" maxlength="19" oninput=" verificaNumeroCartao()" required>
+    <!-- Formulário de Pagamento -->
+    <form id="paymentForm">
+        <label for="cardNumber">Número do Cartão:</label>
+        <input type="text" id="cardNumber" placeholder="**** **** **** ****" maxlength="19"
+            oninput=" verificaNumeroCartao()" required>
 
-    <label for="cardName">Nome no Cartão:</label>
-    <input type="text" id="cardName" placeholder="Nome Completo" required>
+        <label for="cardName">Nome no Cartão:</label>
+        <input type="text" id="cardName" placeholder="Nome Completo" required>
 
-    <label for="expiryDate">Data de Expiração:</label>
-    <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" oninput=" verificaDataVencimento()" required>
+        <label for="expiryDate">Data de Expiração:</label>
+        <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" oninput=" verificaDataVencimento()"
+            required>
 
-    <label for="cvv">CVV:</label>
-    <input type="text" id="cvv" placeholder="***" maxlength="3" required>
+        <label for="cvv">CVV:</label>
+        <input type="text" id="cvv" placeholder="***" maxlength="3" required>
 
-    <!-- Novo campo de email -->
-    <label for="email">Email:</label>
-    <input type="email" id="email" placeholder="seuemail@example.com" required>
+        <!-- Novo campo de email -->
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="seuemail@example.com" required>
 
-    <button type="button" onclick="processPayment()">Pagar</button>
-</form>
+        <button type="button" onclick="processPayment()">Pagar</button>
+    </form>
 
-<!-- Container da Mensagem -->
-<div id="messageContainer"></div>
+    <!-- Container da Mensagem -->
+    <div id="messageContainer"></div>
 
-<!-- Adicione o link para o Bootstrap JS e o Popper.js para suporte ao dropdown -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Adicione o link para o Bootstrap JS e o Popper.js para suporte ao dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-    function processPayment() {
-        var cardNumber = document.getElementById('cardNumber').value;
-        var cardName = document.getElementById('cardName').value;
-        var expiryDate = document.getElementById('expiryDate').value;
-        var cvv = document.getElementById('cvv').value;
-        var email = document.getElementById('email').value;
+    <script>
+        function processPayment() {
+            var cardNumber = document.getElementById('cardNumber').value;
+            var cardName = document.getElementById('cardName').value;
+            var expiryDate = document.getElementById('expiryDate').value;
+            var cvv = document.getElementById('cvv').value;
+            var email = document.getElementById('email').value;
 
-        // Verifica se o número do cartão está preenchido e é válido
-        if (!verificaSeNumeroValido(cardNumber)) {
-            showMessage('Por favor, preencha e verifique o número do cartão corretamente.', false);
-            return;
+            // Verifica se o número do cartão está preenchido e é válido
+            if (!verificaSeNumeroValido(cardNumber)) {
+                showMessage('Por favor, preencha e verifique o número do cartão corretamente.', false);
+                return;
+            }
+
+            // Verifica se o nome no cartão é válido
+            if (!verificaNomeCartao(cardName)) {
+                showMessage('Por favor, preencha um nome válido no cartão.', false);
+                return;
+            }
+
+            // Verifica se a data de expiração é válida
+            if (!verificaDataCartao(expiryDate)) {
+                showMessage('Por favor, preencha uma data de expiração válida (MM/YY).', false);
+                return;
+            }
+
+            // Verifica se o CVV é válido
+            if (!verificaCVV(cvv)) {
+                showMessage('Por favor, preencha um CVV válido (3 dígitos).', false);
+                return;
+            }
+
+            // Verifica se o e-mail é válido
+            if (!verificaEmail(email)) {
+                showMessage('Por favor, preencha um e-mail válido.', false);
+                return;
+            }
+
+            // Simulação de verificação
+            if (cardNumber.endsWith('8')) {
+                showMessage('Erro Técnico, favor contatar o suporte...', false);
+            } else if (cardNumber.endsWith('9')) {
+                showMessage('Erro de Saldo: Saldo insuficiente no cartão, contate o banco', false);
+            } else {
+                showMessage('Pagamento processado com sucesso! O bilhete foi enviado ao seu email!', true);
+                // Aqui você pode adicionar lógica para enviar os dados ao servidor
+            }
         }
 
-        // Verifica se o nome no cartão é válido
-        if (!verificaNomeCartao(cardName)) {
-            showMessage('Por favor, preencha um nome válido no cartão.', false);
-            return;
+        function showMessage(message, isSuccess) {
+            var messageContainer = document.getElementById('messageContainer');
+            var form = document.getElementById('paymentForm');
+
+            messageContainer.innerText = message;
+
+            if (isSuccess) {
+                messageContainer.style.backgroundColor = '#007bff'; // Azul para aprovação
+            } else {
+                messageContainer.style.backgroundColor = '#dc3545'; // Vermelho para erro
+            }
+
+            messageContainer.style.display = 'block';
+            form.style.display = 'none';
+
+            // Ocultar a mensagem após alguns segundos 
+            setTimeout(function () {
+                messageContainer.style.display = 'none';
+                form.style.display = 'block';
+            }, 5000);
         }
 
-        // Verifica se a data de expiração é válida
-        if (!verificaDataCartao(expiryDate)) {
-            showMessage('Por favor, preencha uma data de expiração válida (MM/YY).', false);
-            return;
+        function verificaNumeroCartao() {
+            var input = document.getElementById('cardNumber');
+            var value = input.value;
+
+            var formattedValue = value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+
+            input.value = formattedValue;
         }
 
-        // Verifica se o CVV é válido
-        if (!verificaCVV(cvv)) {
-            showMessage('Por favor, preencha um CVV válido (3 dígitos).', false);
-            return;
+        function verificaDataVencimento() {
+            var input = document.getElementById('expiryDate');
+            var value = input.value;
+
+            if (value.length === 2 && value.indexOf('/') === -1) {
+                input.value = value + '/';
+            }
         }
 
-        // Verifica se o e-mail é válido
-        if (!verificaEmail(email)) {
-            showMessage('Por favor, preencha um e-mail válido.', false);
-            return;
+
+        function verificaSeNumeroValido(cardNumber) {
+            // Remove espaços em branco e verifica se o número do cartão tem 16 dígitos
+            var cleanCardNumber = cardNumber.replace(/\s/g, '');
+            return cleanCardNumber.length === 16 && /^\d+$/.test(cleanCardNumber);
         }
 
-        // Simulação de verificação
-        if (cardNumber.endsWith('8')) {
-            showMessage('Erro Técnico, favor contatar o suporte...', false);
-        } else if (cardNumber.endsWith('9')) {
-            showMessage('Erro de Saldo: Saldo insuficiente no cartão, contate o banco', false);
-        } else {
-            showMessage('Pagamento processado com sucesso! O bilhete foi enviado ao seu email!', true);
-            // Aqui você pode adicionar lógica para enviar os dados ao servidor
-        }
-    }
 
-    function showMessage(message, isSuccess) {
-        var messageContainer = document.getElementById('messageContainer');
-        var form = document.getElementById('paymentForm');
-
-        messageContainer.innerText = message;
-
-        if (isSuccess) {
-            messageContainer.style.backgroundColor = '#007bff'; // Azul para aprovação
-        } else {
-            messageContainer.style.backgroundColor = '#dc3545'; // Vermelho para erro
+        function verificaNomeCartao(cardName) {
+            // Simples verificação: verifica se o nome no cartão contém apenas letras
+            return /^[a-zA-Z\s]+$/.test(cardName);
         }
 
-        messageContainer.style.display = 'block';
-        form.style.display = 'none';
-
-        // Ocultar a mensagem após alguns segundos 
-        setTimeout(function() {
-            messageContainer.style.display = 'none';
-            form.style.display = 'block';
-        }, 5000); 
-    }
-
-    function  verificaNumeroCartao() {
-        var input = document.getElementById('cardNumber');
-        var value = input.value;
-
-        var formattedValue = value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
-
-        input.value = formattedValue;
-    }
-
-    function  verificaDataVencimento() {
-        var input = document.getElementById('expiryDate');
-        var value = input.value;
-
-        if (value.length === 2 && value.indexOf('/') === -1) {
-            input.value = value + '/';
+        function verificaDataCartao(expiryDate) {
+            // Simples verificação: verifica se a data de expiração tem o formato MM/YY
+            return /^\d{2}\/\d{2}$/.test(expiryDate);
         }
-    }
 
- 
-    function verificaSeNumeroValido(cardNumber) {
-        // Remove espaços em branco e verifica se o número do cartão tem 16 dígitos
-        var cleanCardNumber = cardNumber.replace(/\s/g, '');
-        return cleanCardNumber.length === 16 && /^\d+$/.test(cleanCardNumber);
-    }
+        function verificaCVV(cvv) {
+            // Simples verificação: verifica se o CVV tem 3 dígitos
+            return /^\d{3}$/.test(cvv);
+        }
 
+        function verificaEmail(email) {
+            // Simples verificação: verifica se o e-mail tem um formato válido
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
 
-    function verificaNomeCartao(cardName) {
-        // Simples verificação: verifica se o nome no cartão contém apenas letras
-        return /^[a-zA-Z\s]+$/.test(cardName);
-    }
+        function InformacoesAssento() {
+            var preco = localStorage.getItem("Preco");
+            var assentos = localStorage.getItem("AssentosSelecionados");
+            console.log("Preço: " + preco);
+            console.log("Dados do Assento: " + assentos);
+        }
 
-    function verificaDataCartao(expiryDate) {
-        // Simples verificação: verifica se a data de expiração tem o formato MM/YY
-        return /^\d{2}\/\d{2}$/.test(expiryDate);
-    }
-
-    function verificaCVV(cvv) {
-        // Simples verificação: verifica se o CVV tem 3 dígitos
-        return /^\d{3}$/.test(cvv);
-    }
-
-    function verificaEmail(email) {
-        // Simples verificação: verifica se o e-mail tem um formato válido
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    function InformacoesAssento() {
-    var preco = localStorage.getItem("Preco");
-    var assentos = localStorage.getItem("AssentosSelecionados");
-    console.log("Preço: " + preco);
-    console.log("Dados do Assento: " + assentos);
-}
-
-InformacoesAssento();
-</script>
+        InformacoesAssento();
+    </script>
 
 </body>
+
 </html>

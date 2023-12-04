@@ -15,7 +15,8 @@ function rowsToAssentos(oracleRows) {
         oracleRows.forEach((registro) => {
             assento = {
                 codigo: registro.codigo,
-                numero: registro.numero,
+                coluna: registro.coluna,
+                fileira: registro.fileira,
                 status: registro.status,
                 aeronave: registro.aeronave,
             };

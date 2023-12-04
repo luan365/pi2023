@@ -1,6 +1,7 @@
 export type Assento = {
   codigo?: number, 
-  numero?: number, 
+  fileira?: string,
+  coluna?: number, 
   status?: string,
   aeronave?: number
 }

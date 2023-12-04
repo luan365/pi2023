@@ -21,7 +21,6 @@ const OracleConnAtribs_1 = require("./OracleConnAtribs");
 // conversores para facilitar o trabalho de conversão dos resultados Oracle para vetores de tipos nossos.
 const Conversores_1 = require("./Conversores");
 const ConversorPassagem_1 = require("./ConversorPassagem");
-const ConversorAssento_1 = require("./ConversorAssento");
 const ConversorTrechos_1 = require("./ConversorTrechos");
 // validadores para facilitar o trabalho de validação.
 const Validadores_1 = require("./Validadores");
@@ -36,7 +35,6 @@ oracledb_1.default.outFormat = oracledb_1.default.OUT_FORMAT_OBJECT;
 // servicos de backend
 //------------------------------------------------------------------
 app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    '';
     let cr = { status: "ERROR", message: "", payload: undefined, };
     let connection;
     try {
@@ -66,46 +64,6 @@ app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 }));
 //------------------------------------------------------------------
-app.post("/criarAssentos", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let cr = { status: "ERROR", message: "", payload: undefined };
-    // Obtendo os parâmetros da requisição
-    const { fileiras, colunas, idVoo } = req.body;
-    let connection;
-    try {
-        connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        // Preparando a chamada à função pCriarAssentos
-        const plsql = `
-      BEGIN
-        pCriarAssentos(:fileiras, :colunas, :idVoo);
-      END;
-    `;
-        const bindVars = {
-            fileiras,
-            colunas,
-            idVoo,
-        };
-        // Executando a chamada à função
-        yield connection.execute(plsql, bindVars);
-        cr.status = "SUCCESS";
-        cr.message = "Assentos criados com sucesso";
-    }
-    catch (e) {
-        if (e instanceof Error) {
-            cr.message = e.message;
-            console.log(e.message);
-        }
-        else {
-            cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
-        }
-    }
-    finally {
-        if (connection !== undefined) {
-            yield connection.close();
-        }
-        res.send(cr);
-    }
-}));
-//------------------------------------------------------------------
 app.get("/listarAssentos/:codigoAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined };
     let connection;
@@ -115,10 +73,10 @@ app.get("/listarAssentos/:codigoAeronave", (req, res) => __awaiter(void 0, void 
         // Obter informações sobre os assentos da aeronave
         const dado = [codigo];
         let resultadoConsulta = yield connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = :1`, dado);
-        //cr.payload = resultadoConsulta.rows;
+        console.log(dado);
         cr.status = "SUCCESS";
         cr.message = "Dados obtidos";
-        cr.payload = (0, ConversorAssento_1.rowsToAssentos)(resultadoConsulta.rows);
+        cr.payload = resultadoConsulta.rows;
     }
     catch (e) {
         if (e instanceof Error) {

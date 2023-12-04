@@ -32,6 +32,7 @@
             assento.className = "seat";
             return assento;
         }
+
         function preencherTabela(assentos) {
             let assentosPorFileira = 10;
             const mapaContainer = document.getElementById("mapa-assentos");
@@ -110,20 +111,15 @@
                             if (customResponse.payload) {
                                 console.log('Payload:', JSON.stringify(customResponse.payload));
                                 preencherTabela(customResponse.payload);
-                            } else {
-                                console.log('A resposta do servidor não contém payload.');
-                            }
-                        } else {
-                            console.log('Erro na resposta do servidor:', customResponse.message || 'Sem mensagem de erro.');
-                        }
+                            } else console.log('A resposta do servidor não contém payload.');
+                            
+                        } else console.log('Erro na resposta do servidor:', customResponse.message || 'Sem mensagem de erro.');
+                        
                     })
-                    .catch(e => {
-                        console.log('Erro na requisição ao servidor:', e);
+                    .catch(error => {
+                        console.error('Erro na requisição ao servidor:', error);
                     });
-
-            } else {
-                console.log('ID do Voo não encontrado no localStorage.');
-            }
+            } else console.log('ID do Voo não encontrado no localStorage.'); 
         }
 
         // Chame a função exibirMapa para carregar o mapa quando a página for carregada
@@ -163,9 +159,9 @@
     <div class="mapa-assentos-container">
         <table id="tblMapa" cellspacing="5" cellpadding="10">
             <thead class="fil">
-                <tr id="colunas">        
+                <tr id="colunas">
             </thead>
-                <tbody class="mapa-assentos" id="mapa-assentos"></tbody>
+            <tbody class="mapa-assentos" id="mapa-assentos"></tbody>
         </table>
     </div>
 
@@ -188,9 +184,7 @@
 
             return precoTotal;
         }
-
-
-        // Adiciona um ouvinte de eventos ao mapa-container
+a
         document.getElementById("mapa-assentos").addEventListener("click", function (event) {
             // Verifica se o clique foi em um assento
             if (event.target.classList.contains("seat")) {
@@ -201,10 +195,10 @@
                 const preco = calcularPreco();
 
                 // Obtém os números dos assentos selecionados
-                const assentosSelecionados = Array.from(document.querySelectorAll(".selected")).map(assento => assento.textContent);
+                const assentosSelecionados = "";
 
                 // Armazena os assentos selecionados no localStorage
-                localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
+                localStorage.setItem("AssentosSelecionados", (assentosSelecionados));
 
                 localStorage.setItem("Preco", preco);
                 document.querySelector(".price").textContent = `Total: R$ ${preco.toFixed(2)}`;
@@ -220,31 +214,19 @@
         // Adiciona um ouvinte de eventos ao botão de compra (PIX)
         document.getElementById("pix").addEventListener("click", function (event) {
             const preco = parseInt(localStorage.getItem("Preco"), 10);
-            const assentosSelecionados = JSON.parse(localStorage.getItem("AssentosSelecionados"));
 
-            if (preco !== 0) {
-                // Salva os assentos e preço antes de redirecionar
-                localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
-                localStorage.setItem("Pagamento", "PIX");
-                window.location.pathname = "front/src/user/pagamentos/pagamentoPix.html";
-            } else {
-                alert("Selecione pelo menos um assento para comprar.");
-            }
+            if (preco !== 0) window.location.pathname = "front/src/user/pagamentos/pagamentoPix.html";
+             else alert("Selecione pelo menos um assento para comprar.");
+            
         });
 
         // Adiciona um ouvinte de eventos ao botão de compra (Cartão)
         document.getElementById("cartao").addEventListener("click", function (event) {
             const preco = parseInt(localStorage.getItem("Preco"), 10);
-            const assentosSelecionados = JSON.parse(localStorage.getItem("AssentosSelecionados"));
 
-            if (preco !== 0) {
-                // Salva os assentos e preço antes de redirecionar
-                localStorage.setItem("AssentosSelecionados", JSON.stringify(assentosSelecionados));
-                localStorage.setItem("Pagamento", "Cartão");
-                window.location.pathname = "front/src/user/pagamentos/pagamentoCartao.html";
-            } else {
-                alert("Selecione pelo menos um assento para comprar.");
-            }
+            if (preco !== 0) window.location.pathname = "front/src/user/pagamentos/pagamentoCartao.html";
+            else alert("Selecione pelo menos um assento para comprar.");
+            
         });
 
     </script>

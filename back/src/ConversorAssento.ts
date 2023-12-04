@@ -15,7 +15,8 @@ export function rowsToAssentos(oracleRows: unknown[] | undefined) : Array<Assent
     oracleRows.forEach((registro: any) => {
       assento = {
         codigo : registro.codigo, 
-        numero : registro .numero,
+        coluna : registro.coluna,
+        fileira : registro.fileira,
         status : registro.status, 
         aeronave : registro.aeronave,
             } as Assento;

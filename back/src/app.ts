@@ -33,7 +33,7 @@ oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
 // servicos de backend
 //------------------------------------------------------------------
-app.get("/listarAeronaves", async(req,res)=>{''
+app.get("/listarAeronaves", async(req,res)=>{
 
   let cr: CustomResponse = {status: "ERROR", message: "", payload: undefined,};
   let connection;
@@ -76,11 +76,11 @@ app.get("/listarAssentos/:codigoAeronave", async (req, res) => {
     // Obter informações sobre os assentos da aeronave
     const dado = [codigo];
     let resultadoConsulta = await connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = :1`, dado);
+    console.log(dado);
 
-    //cr.payload = resultadoConsulta.rows;
     cr.status = "SUCCESS";
     cr.message = "Dados obtidos";
-    cr.payload = rowsToAssentos(resultadoConsulta.rows);
+    cr.payload = resultadoConsulta.rows;
 
   } catch (e) {
     if (e instanceof Error) {

@@ -1,15 +1,3 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #343a40; /* Cor de fundo escura para o tema escuro */
-    color: #ffffff; /* Cor do texto para o tema escuro */
-}
-
 #messageContainer {
     position: fixed;
     top: 50%;

@@ -65,13 +65,13 @@ app.get("/listarAeronaves", async(req,res)=>{
 });
  
 //------------------------------------------------------------------
-app.get("/listarAssentos/:codigoAeronave", async (req, res) => {
+app.get("/listarAssentos/:codigo", async (req, res) => {
   let cr: CustomResponse = { status: "ERROR", message: "", payload: undefined };
   let connection;
   try {
     connection = await oracledb.getConnection(oraConnAttribs);
 
-    let codigo = req.params.codigoAeronave;
+    const codigo = req.params.codigo;
 
     // Obter informações sobre os assentos da aeronave
     const dado = [codigo];
@@ -133,7 +133,7 @@ app.get("/listarTrechos", async(req,res)=>{
 app.put("/alterarAeronave", async (req, res) => {
   // Obtenha aeronave e código da requisição.
   const aero: Aeronave = req.body as Aeronave;
-  const codigo = aero.codigo;
+  const codigo = req.body.codigo as number;
 
   // Defina um objeto de resposta.
   let cr: CustomResponse = {
@@ -264,62 +264,60 @@ app.put("/inserirAeronave", async(req,res)=>{
   }
 });
 
-//------------------------------------------------------------------
-app.delete("/excluirAeronave", async(req,res)=>{
-  // excluindo a aeronave pelo código dela:
+app.delete("/excluirAeronave", async (req, res) => {
   const codigo = req.body.codigo as number;
- 
-  console.log('Codigo recebido: ' + codigo);
 
-  // definindo um objeto de resposta.
   let cr: CustomResponse = {
     status: "ERROR",
     message: "",
     payload: undefined,
   };
 
-  // conectando 
   let connection;
-  try{
+  try {
     connection = await oracledb.getConnection(oraConnAttribs);
-    const dado = [codigo];
-    const cmdDeleteAero = await connection.execute(`DELETE FROM AERONAVES WHERE codigo = ${dado}`);
 
-    let result = await connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`); 
-    
-    if(+result > 0) {
-      cr.message = "Aeronave não excluída. Aeronave está associada a um voo";
+    // Verificar se há registros associados na tabela de TRECHOS
+    const result = await connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE AERONAVE = :1`, [codigo]);
+
+    if (+result > 0) {
+      cr.message = "Aeronave não excluída. Aeronave está associada a um voo.";
       console.log(cr.message);
-    }
-    
-    else{
-      // importante: efetuar o commit para gravar no Oracle.
+    } else {
+      // Excluir os assentos associados à aeronave
+      const cmdDeleteAssentos = await connection.execute(`DELETE FROM ASSENTOS WHERE AERONAVE = :1`, [codigo]);
+      console.log("retornto dos assentos: " + cmdDeleteAssentos + " " + [codigo]);
+
+      // Excluir a própria aeronave
+      const cmdDeleteAero = await connection.execute(`DELETE FROM AERONAVES WHERE CODIGO = :1`, [codigo]);
+
+      // Efetuar o commit para gravar no Oracle.
       await connection.commit();
-      
-      // obter a informação de quantas linhas foram inseridas. 
-      // neste caso precisa ser exatamente 1
-      const rowsDeleted = cmdDeleteAero.rowsAffected;
-      if(rowsDeleted !== undefined && rowsDeleted === 1) {
-        cr.status = "SUCCESS"; 
+
+      // Obter a informação de quantas linhas foram excluídas.
+      const rowsDeletedAero = cmdDeleteAero.rowsAffected;
+
+      if (rowsDeletedAero !== undefined && rowsDeletedAero === 1) {
+        cr.status = "SUCCESS";
         cr.message = "Aeronave excluída.";
-      }else
+      } else {
         cr.message = "Aeronave não excluída. Verifique se o código informado está correto.";
-      
-  }
-  }catch(e){
-    if(e instanceof Error){
+      }
+    }
+  } catch (e) {
+    if (e instanceof Error) {
       cr.message = e.message;
       console.log(e.message);
-    }else{
-      cr.message = "Erro ao conectar ao oracle. Sem detalhes";
+    } else {
+      cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
     }
   } finally {
-    // fechando a conexao
-    if(connection!==undefined)
+    // Fechar a conexão.
+    if (connection !== undefined) {
       await connection.close();
-
-    // devolvendo a resposta da requisição.
-    res.send(cr);  
+    }
+    // Enviar a resposta da requisição.
+    res.send(cr);
   }
 });
 

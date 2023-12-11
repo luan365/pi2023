@@ -72,6 +72,9 @@
     }
 
     function alterarAeronave(codigo) {
+      
+      console.log('Clicou em alterar aeronave: ' + codigo);
+
       document.getElementById("edit-aeronave").style.display = "block";
 
       // Obter os valores da linha clicada
@@ -81,22 +84,28 @@
       referencia = document.getElementById(`referencia-${codigo}`).innerText;
       totalAssentos = document.getElementById(`totalAssentos-${codigo}`).innerText;
 
+      // Atribui os valores da aeronave para a div de alteração
       document.getElementById("editFabricante").value = fabricante;
       document.getElementById("editModelo").value = modelo;
       document.getElementById("editAnoFab").value = anoFab;
       document.getElementById("editReferencia").value = referencia;
       document.getElementById("editTotalAssentos").value = totalAssentos;
 
-      // Exibição dos campos
+      // Exibição dos campos edit
       document.getElementById("editFabricante").style.display = "inline";
       document.getElementById("editModelo").style.display = "inline";
       document.getElementById("editAnoFab").style.display = "inline";
       document.getElementById("editReferencia").style.display = "inline";
       document.getElementById("editTotalAssentos").style.display = "inline";
-
+    
+      document.getElementById("btnSalvar").addEventListener("click", function (event) {
+        salvarAlteracao(codigo);
+        });
     }
 
     function salvarAlteracao(codigo) {
+      
+      console.log('Clicou no salvar aeronave: ' + codigo);
 
       if (!preencheuFabricante()) {
         showStatusMessage("Informe o fabricante...", true);
@@ -324,7 +333,7 @@
     <input type="text" id="editAnoFab" placeholder="Ano" />
     <input type="text" id="editReferencia" placeholder="Referência" />
     <input type="text" id="editTotalAssentos" placeholder="Total de Assentos" />
-    <button onclick="salvarAlteracao()">Salvar</button>
+    <button id="btnSalvar">Salvar</button>
   </div>
 
   <div id="status" class="alert alert-info" role="alert" style="display: none;">

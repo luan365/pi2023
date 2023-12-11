@@ -64,12 +64,12 @@ app.get("/listarAeronaves", (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 }));
 //------------------------------------------------------------------
-app.get("/listarAssentos/:codigoAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/listarAssentos/:codigo", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let cr = { status: "ERROR", message: "", payload: undefined };
     let connection;
     try {
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        let codigo = req.params.codigoAeronave;
+        const codigo = req.params.codigo;
         // Obter informações sobre os assentos da aeronave
         const dado = [codigo];
         let resultadoConsulta = yield connection.execute(`SELECT * FROM ASSENTOS WHERE AERONAVE = :1`, dado);
@@ -128,7 +128,7 @@ app.get("/listarTrechos", (req, res) => __awaiter(void 0, void 0, void 0, functi
 app.put("/alterarAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     // Obtenha aeronave e código da requisição.
     const aero = req.body;
-    const codigo = aero.codigo;
+    const codigo = req.body.codigo;
     // Defina um objeto de resposta.
     let cr = {
         status: "ERROR",
@@ -249,40 +249,39 @@ app.put("/inserirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, func
         }
     }
 }));
-//------------------------------------------------------------------
 app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // excluindo a aeronave pelo código dela:
     const codigo = req.body.codigo;
-    console.log('Codigo recebido: ' + codigo);
-    // definindo um objeto de resposta.
     let cr = {
         status: "ERROR",
         message: "",
         payload: undefined,
     };
-    // conectando 
     let connection;
     try {
         connection = yield oracledb_1.default.getConnection(OracleConnAtribs_1.oraConnAttribs);
-        const dado = [codigo];
-        const cmdDeleteAero = yield connection.execute(`DELETE FROM AERONAVES WHERE codigo = ${dado}`);
-        let result = yield connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE aeronave = :1`);
+        // Verificar se há registros associados na tabela de TRECHOS
+        const result = yield connection.execute(`SELECT COUNT(*) FROM TRECHOS WHERE AERONAVE = :1`, [codigo]);
         if (+result > 0) {
-            cr.message = "Aeronave não excluída. Aeronave está associada a um voo";
+            cr.message = "Aeronave não excluída. Aeronave está associada a um voo.";
             console.log(cr.message);
         }
         else {
-            // importante: efetuar o commit para gravar no Oracle.
+            // Excluir os assentos associados à aeronave
+            const cmdDeleteAssentos = yield connection.execute(`DELETE FROM ASSENTOS WHERE AERONAVE = :1`, [codigo]);
+            console.log("retornto dos assentos: " + cmdDeleteAssentos + " " + [codigo]);
+            // Excluir a própria aeronave
+            const cmdDeleteAero = yield connection.execute(`DELETE FROM AERONAVES WHERE CODIGO = :1`, [codigo]);
+            // Efetuar o commit para gravar no Oracle.
             yield connection.commit();
-            // obter a informação de quantas linhas foram inseridas. 
-            // neste caso precisa ser exatamente 1
-            const rowsDeleted = cmdDeleteAero.rowsAffected;
-            if (rowsDeleted !== undefined && rowsDeleted === 1) {
+            // Obter a informação de quantas linhas foram excluídas.
+            const rowsDeletedAero = cmdDeleteAero.rowsAffected;
+            if (rowsDeletedAero !== undefined && rowsDeletedAero === 1) {
                 cr.status = "SUCCESS";
                 cr.message = "Aeronave excluída.";
             }
-            else
+            else {
                 cr.message = "Aeronave não excluída. Verifique se o código informado está correto.";
+            }
         }
     }
     catch (e) {
@@ -291,14 +290,15 @@ app.delete("/excluirAeronave", (req, res) => __awaiter(void 0, void 0, void 0, f
             console.log(e.message);
         }
         else {
-            cr.message = "Erro ao conectar ao oracle. Sem detalhes";
+            cr.message = "Erro ao conectar ao Oracle. Sem detalhes";
         }
     }
     finally {
-        // fechando a conexao
-        if (connection !== undefined)
+        // Fechar a conexão.
+        if (connection !== undefined) {
             yield connection.close();
-        // devolvendo a resposta da requisição.
+        }
+        // Enviar a resposta da requisição.
         res.send(cr);
     }
 }));
